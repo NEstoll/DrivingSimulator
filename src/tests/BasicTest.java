@@ -10,4 +10,8 @@ public class BasicTest {
     void testMain() {
         Main.main(null);
     }
+
+    void testAsserts() {
+        assertEquals(Main.other(), 2);
+    }
 }
