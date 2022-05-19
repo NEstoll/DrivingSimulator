@@ -1,8 +1,9 @@
 package tests;
 
-import application.Program;
+import application.DataInterface;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.function.Executable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,9 +36,15 @@ public class AssettoInterfaceTests {
 
     @Test
     public void testVerification() throws IOException {
-        Program test = new Program();
+        DataInterface test = new DataInterface();
         assertEquals(test.verifyAssetto(), new File(config.get("assetto-corsa-location")));
         //not sure how to test the failing condition other than running on a computer without assetto
+    }
+
+    @Test
+    public void testConfigs() {
+        DataInterface test = new DataInterface();
+        assertDoesNotThrow(test::generateConfigs);
     }
 
 }
