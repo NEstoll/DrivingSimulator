@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 
+/**
+ *
+ */
 public class GUI {
     public static void main(String[] args) {
         //create frame

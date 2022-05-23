@@ -4,7 +4,14 @@ import java.io.*;
 import java.util.Scanner;
 
 public class DataInterface {
-    public File verifyAssetto() throws IOException { //see if Assetto is installed (only works on windows, but so does Assetto)
+    /**
+     * Verifies that Assetto Corsa is installed on the computer, and returns the location of the install if found. Relies on the windows registry, will not work on other systems.
+     *
+     * @return a File pointing to the top level folder of the Assetto Corsa installation
+     * @throws IOException if registry query fails
+     * @throws FileNotFoundException if Assetto Corsa isn't found
+     */
+    public File verifyAssetto() throws IOException, FileNotFoundException { //see if Assetto is installed (only works on windows, but so does Assetto)
         //query registry for steam path
         InputStream is = Runtime.getRuntime().exec("reg query " + "\"HKEY_CURRENT_USER\\SOFTWARE\\Valve\\Steam\" /v SteamPath").getInputStream();
         StringWriter sw = new StringWriter();
@@ -25,20 +32,26 @@ public class DataInterface {
 
         }
         //none found, return empty file
-        return new File("");
+        throw new FileNotFoundException("Assetto Corsa not found");
     }
 
-    public void generateConfigs() throws FileNotFoundException {
+
+    /**
+     * @param car the name of the car/folder to read the configuration files from
+     * @throws FileNotFoundException if data folder not found/not extracted
+     */
+    public void generateConfigs(String car) throws FileNotFoundException {
         File assetto = null;
         try {
             assetto = verifyAssetto();
         } catch (IOException e) {
             System.err.println("Assetto Corsa not found, please provide:");
             //add file import
+            return;
         }
         //extract data.acd
-        if (!(assetto = new File(assetto, "content\\cars\\abarth500\\data")).exists()) {
-            return;
+        if (!(assetto = new File(assetto, "content\\cars\\" + car + "\\data")).exists()) {
+            throw new FileNotFoundException("data folder not found");
         }
         Scanner reader = new Scanner(System.in);
         for (File f: assetto.listFiles()) {
@@ -54,7 +67,5 @@ public class DataInterface {
                 System.out.println('"' + reader.nextLine() + "\" added to config");
             }
         }
-
-
     }
 }

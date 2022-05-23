@@ -1,9 +1,8 @@
 package tests;
 
-import application.DataInterface;
-import static org.junit.jupiter.api.Assertions.*;
+import application.*;
+
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.function.Executable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,8 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-public class AssettoInterfaceTests {
-    static Map<String, String> config = new HashMap<>();
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class GeneralTests {static Map<String, String> config = new HashMap<>();
 
     @BeforeAll
     public static void setup() {
@@ -42,9 +42,7 @@ public class AssettoInterfaceTests {
     }
 
     @Test
-    public void testConfigs() {
-        DataInterface test = new DataInterface();
-        assertDoesNotThrow(test::generateConfigs);
+    void testMain() {
+        GUI.main(null);
     }
-
 }
