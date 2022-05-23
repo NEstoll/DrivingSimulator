@@ -8,10 +8,10 @@ import java.io.IOException;
  * Main class for UI, will handle all subcomponents and displaying the application
  *
  */
-public class GUI {
+public class GUI extends JFrame {
     public static void main(String[] args) {
         //create frame
-        JFrame frame = new JFrame();
+        JFrame frame = new GUI();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         //create data interface
@@ -22,9 +22,9 @@ public class GUI {
         //upload buttons (added in a row top to bottom in the center of the window)
         JPanel uploads = new JPanel();
         uploads.setLayout(new BoxLayout(uploads, BoxLayout.PAGE_AXIS));
-        uploads.add(new FileImport("Aero data"));
-        uploads.add(new FileImport("Powertrain data"));
-        uploads.add(new FileImport("Suspension data"));
+        uploads.add(new FileImport("Aero"));
+        uploads.add(new FileImport("Drivetrain"));
+        uploads.add(new FileImport("Suspension"));
         content.add(uploads, BorderLayout.CENTER);
 
         //add name field

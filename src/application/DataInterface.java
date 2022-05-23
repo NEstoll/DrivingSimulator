@@ -77,18 +77,17 @@ public class DataInterface {
         if (!(assetto = new File(assetto, "content\\cars\\" + car + "\\data")).exists()) {
             throw new FileNotFoundException("data folder not found");
         }
-        Scanner reader = new Scanner(System.in);
         for (File f: assetto.listFiles()) {
-            System.out.println(f.getName());
+            String filename = f.getName();
             Scanner fileReader = new Scanner(f);
             while (fileReader.hasNextLine()) {
                 String next = fileReader.nextLine();
                 if (next.startsWith("[") && next.endsWith("]") || !next.contains(";")) {
                     continue;
                 }
-                System.out.println(next.split(";")[1]);
-                System.out.print(next.split(";")[0].split("=")[0] + "=");
-                System.out.println('"' + reader.nextLine() + "\" added to config");
+                String comment = next.split(";")[1];
+                String key = next.split(";")[0].split("=")[0];
+
             }
         }
     }
@@ -97,7 +96,7 @@ public class DataInterface {
         inputFiles.put(type, file);
     }
 
-    public void generateFiles() {
+    public void generateFiles(File folder) {
 
     }
 }
