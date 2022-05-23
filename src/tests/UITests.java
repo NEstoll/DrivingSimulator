@@ -26,6 +26,5 @@ public class UITests {
     public static void cleanup() {
         testFrame.pack();
         testFrame.setVisible(true);
-
     }
 }

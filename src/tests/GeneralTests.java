@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GeneralTests {static Map<String, String> config = new HashMap<>();
 
@@ -21,9 +21,9 @@ public class GeneralTests {static Map<String, String> config = new HashMap<>();
         try {
             reader = new Scanner(new File("src\\data\\testConfig.txt"));
         } catch (FileNotFoundException e) {
-            System.out.println("Test Configuration file not found");
-            System.out.println("Please refer to the README.txt in data");
-            System.exit(1);
+            System.err.println("Test Configuration file not found");
+            System.err.println("Please refer to the README.txt in data");
+            fail();
         }
         while (reader.hasNextLine()) {
             String next = reader.nextLine();
@@ -36,9 +36,11 @@ public class GeneralTests {static Map<String, String> config = new HashMap<>();
 
     @Test
     public void testVerification() throws IOException {
-        DataInterface test = new DataInterface();
-        assertEquals(test.verifyAssetto(), new File(config.get("assetto-corsa-location")));
-        //not sure how to test the failing condition other than running on a computer without assetto
+        if (!config.containsKey("assetto-corsa-location")) {
+            assertThrows(IOException.class, DataInterface::verifyAssetto);
+        } else {
+            assertEquals(DataInterface.verifyAssetto(), new File(config.get("assetto-corsa-location")));
+        }
     }
 
     @Test

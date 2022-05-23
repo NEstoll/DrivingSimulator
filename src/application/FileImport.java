@@ -1,6 +1,7 @@
 package application;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -10,7 +11,6 @@ import java.io.File;
  */
 public class FileImport extends JPanel {
     private JButton fileOpen;
-    private File choosenFile;
     private JLabel label;
 
 
@@ -29,7 +29,7 @@ public class FileImport extends JPanel {
         lableConstraints.gridheight = 3;
         lableConstraints.weightx = 1.0;
         lableConstraints.fill = GridBagConstraints.HORIZONTAL;
-        label = new JLabel(text);
+        label = new JLabel("No File Uploaded");
         this.add(label, lableConstraints);
 
         // Put button on the right
@@ -52,10 +52,11 @@ public class FileImport extends JPanel {
             }
         });
         this.add(fileOpen, buttonConstraints);
-        this.setBorder(BorderFactory.createTitledBorder("name"));
+        this.setBorder(BorderFactory.createTitledBorder(text));
     }
 
     public void handleFile(String filename) {
         label.setText(filename);
+        DataInterface.getInstance().inputFile(new File(filename), ((TitledBorder)getBorder()).getTitle());
     }
 }

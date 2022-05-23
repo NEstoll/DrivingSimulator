@@ -1,9 +1,30 @@
 package application;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * Data class, will handle reading and writing all data to and from files, as well as any modifications that are needed.
+ */
 public class DataInterface {
+    private static final DataInterface singleton = new DataInterface();
+    private Map<String, File> inputFiles;
+
+    private DataInterface() {
+        inputFiles = new HashMap<>();
+    }
+
+    public static DataInterface getInstance() {
+        return singleton;
+    }
+
+    public Map<String, File> getInputFiles() {
+        return inputFiles;
+    }
+
     /**
      * Verifies that Assetto Corsa is installed on the computer, and returns the location of the install if found. Relies on the windows registry, will not work on other systems.
      *
@@ -11,12 +32,15 @@ public class DataInterface {
      * @throws IOException if registry query fails
      * @throws FileNotFoundException if Assetto Corsa isn't found
      */
-    public File verifyAssetto() throws IOException, FileNotFoundException { //see if Assetto is installed (only works on windows, but so does Assetto)
+    public static File verifyAssetto() throws IOException, FileNotFoundException { //see if Assetto is installed (only works on windows, but so does Assetto)
         //query registry for steam path
         InputStream is = Runtime.getRuntime().exec("reg query " + "\"HKEY_CURRENT_USER\\SOFTWARE\\Valve\\Steam\" /v SteamPath").getInputStream();
         StringWriter sw = new StringWriter();
         for (int c; (c = is.read()) != -1;)
             sw.write(c);
+        if (sw.toString().equals("")) {
+            throw new IOException();
+        }
         File libraries = new File(sw.toString().substring(sw.toString().indexOf("REG_SZ    ") + "REG_SZ    ".length()).trim()+"\\steamapps\\libraryfolders.vdf");
         //read all of the libraries (places where steam stores files)
         Scanner reader = new Scanner(libraries);
@@ -41,7 +65,7 @@ public class DataInterface {
      * @throws FileNotFoundException if data folder not found/not extracted
      */
     public void generateConfigs(String car) throws FileNotFoundException {
-        File assetto = null;
+        File assetto;
         try {
             assetto = verifyAssetto();
         } catch (IOException e) {
@@ -67,5 +91,13 @@ public class DataInterface {
                 System.out.println('"' + reader.nextLine() + "\" added to config");
             }
         }
+    }
+
+    public void inputFile(File file, String type) {
+        inputFiles.put(type, file);
+    }
+
+    public void generateFiles() {
+
     }
 }

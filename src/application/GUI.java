@@ -5,6 +5,7 @@ import java.awt.*;
 import java.io.IOException;
 
 /**
+ * Main class for UI, will handle all subcomponents and displaying the application
  *
  */
 public class GUI {
@@ -13,14 +14,17 @@ public class GUI {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+        //create data interface
+        DataInterface data = DataInterface.getInstance();
+
         //add content
         JPanel content = new JPanel(new BorderLayout());
         //upload buttons (added in a row top to bottom in the center of the window)
         JPanel uploads = new JPanel();
         uploads.setLayout(new BoxLayout(uploads, BoxLayout.PAGE_AXIS));
-        uploads.add(new FileImport("Please Upload File"));
-        uploads.add(new FileImport("Please Upload File"));
-        uploads.add(new FileImport("Please Upload File"));
+        uploads.add(new FileImport("Aero data"));
+        uploads.add(new FileImport("Powertrain data"));
+        uploads.add(new FileImport("Suspension data"));
         content.add(uploads, BorderLayout.CENTER);
 
         //add name field
