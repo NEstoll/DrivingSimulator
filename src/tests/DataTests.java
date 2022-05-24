@@ -15,17 +15,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DataTests {
-    private static DataInterface test;
     private File[] files = new File[] {new File("src\\data\\config.txt"), new File(""), new File("src\\data\\README.txt"), new File("src\\application\\GUI.java")};
     private String[] types = new String[]{"config", "null", "readme", "GUI class"};
     @BeforeAll
     public static void setup() {
-        test = DataInterface.getInstance();
     }
 
     @Test
     public void testConfigs() {
-        assertDoesNotThrow(() -> test.generateConfigs("abarth500"));
+        assertDoesNotThrow(() -> DataInterface.generateConfigs("abarth500"));
     }
 
     @Test
@@ -34,10 +32,10 @@ public class DataTests {
         for (int i = 0; i < files.length; i++) {
             File f = files[i];
             String s = types[i];
-            test.inputFile(f, s);
+            DataInterface.inputFile(f, s);
             expected.put(s, f);
         }
-        assertIterableEquals(test.getInputFiles().entrySet(), expected.entrySet());
+        assertIterableEquals(DataInterface.getInputFiles().entrySet(), expected.entrySet());
     }
 
     @Test
@@ -46,11 +44,11 @@ public class DataTests {
         for (int i = 0; i < files.length; i++) {
             File f = files[i];
             String s = types[i];
-            test.inputFile(f, s);
+            DataInterface.inputFile(f, s);
             expected.put(s, f);
         }
         File output = new File("data\\output");
-        test.generateFiles(output);
+        DataInterface.generateFiles(output);
 
         for (String type: types) {
             System.out.println(type);

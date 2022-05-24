@@ -10,19 +10,10 @@ import java.util.Scanner;
  * Data class, will handle reading and writing all data to and from files, as well as any modifications that are needed.
  */
 public class DataInterface {
-    private static final DataInterface singleton = new DataInterface();
-    private Map<String, File> inputFiles;
+    private static Map<String, File> inputFiles = new HashMap<>();
     private static File assetto;
 
-    private DataInterface() {
-        inputFiles = new HashMap<>();
-    }
-
-    public static DataInterface getInstance() {
-        return singleton;
-    }
-
-    public Map<String, File> getInputFiles() {
+    public static Map<String, File> getInputFiles() {
         return inputFiles;
     }
 
@@ -64,6 +55,9 @@ public class DataInterface {
         throw new FileNotFoundException("Assetto Corsa not found");
     }
 
+    /**
+     * @param assetto The assetocorsa folder containing all of the game's data and files
+     */
     public static void setAssetto(File assetto) {
         DataInterface.assetto = assetto;
     }
@@ -72,38 +66,54 @@ public class DataInterface {
      * @param car the name of the car/folder to read the configuration files from
      * @throws FileNotFoundException if data folder not found/not extracted
      */
-    public void generateConfigs(String car) throws FileNotFoundException {
+    public static Map<File, ArrayList<String[]>> generateConfigs(String car) throws FileNotFoundException {
         try {
             assetto = verifyAssetto();
         } catch (IOException e) {
             System.err.println("Assetto Corsa not found, please provide:");
             //add file import
-            return;
+            return null;
         }
         //extract data.acd
         if (!(assetto = new File(assetto, "content\\cars\\" + car + "\\data")).exists()) {
             throw new FileNotFoundException("data folder not found");
         }
+        Map<File, ArrayList<String[]>> configuration = new HashMap<>();
         for (File f: assetto.listFiles()) {
-            String filename = f.getName();
+            if (!f.getName().endsWith(".ini")) {
+                continue;
+            }
             Scanner fileReader = new Scanner(f);
+            ArrayList<String[]> config = new ArrayList<>();
             while (fileReader.hasNextLine()) {
                 String next = fileReader.nextLine();
-                if (next.startsWith("[") && next.endsWith("]") || !next.contains(";")) {
+                if (next.startsWith("[") && next.endsWith("]")) {
+                    config.add(new String[]{next});
+                    continue;
+                } else if (!next.contains("=")) {
                     continue;
                 }
-                String comment = next.split(";")[1];
-                String key = next.split(";")[0].split("=")[0];
-
+                String comment;
+                String key;
+                if (next.contains(";")) {
+                    comment = next.split(";")[1];
+                    key = next.split(";")[0].split("=")[0];
+                } else {
+                    comment = "";
+                    key = next.split("=")[0];
+                }
+                config.add(new String[]{key, comment});
             }
+            configuration.put(f, config);
         }
+        return configuration;
     }
 
-    public void inputFile(File file, String type) {
+    public static void inputFile(File file, String type) {
         inputFiles.put(type, file);
     }
 
-    public void generateFiles(File folder) {
+    public static void generateFiles(File folder) {
 
     }
 }

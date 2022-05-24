@@ -57,7 +57,7 @@ public class FileImport extends JPanel {
 
     public void handleFile(String filename) {
         label.setText(filename);
-        DataInterface.getInstance().inputFile(new File(filename), ((TitledBorder)getBorder()).getTitle());
+        DataInterface.inputFile(new File(filename), ((TitledBorder)getBorder()).getTitle());
     }
 
     public JLabel getLabel() {
