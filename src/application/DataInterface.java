@@ -12,6 +12,7 @@ import java.util.Scanner;
 public class DataInterface {
     private static final DataInterface singleton = new DataInterface();
     private Map<String, File> inputFiles;
+    private static File assetto;
 
     private DataInterface() {
         inputFiles = new HashMap<>();
@@ -33,6 +34,9 @@ public class DataInterface {
      * @throws FileNotFoundException if Assetto Corsa isn't found
      */
     public static File verifyAssetto() throws IOException, FileNotFoundException { //see if Assetto is installed (only works on windows, but so does Assetto)
+        if (assetto != null) {
+            return assetto;
+        }
         //query registry for steam path
         InputStream is = Runtime.getRuntime().exec("reg query " + "\"HKEY_CURRENT_USER\\SOFTWARE\\Valve\\Steam\" /v SteamPath").getInputStream();
         StringWriter sw = new StringWriter();
@@ -51,6 +55,7 @@ public class DataInterface {
             }
             File library = new File(next.replaceAll(".*\"(.+?)\".*", "$1") + "\\steamapps\\common\\assettocorsa");
             if (library.exists()) {
+                assetto = library;
                 return library;
             }
 
@@ -59,13 +64,15 @@ public class DataInterface {
         throw new FileNotFoundException("Assetto Corsa not found");
     }
 
+    public static void setAssetto(File assetto) {
+        DataInterface.assetto = assetto;
+    }
 
     /**
      * @param car the name of the car/folder to read the configuration files from
      * @throws FileNotFoundException if data folder not found/not extracted
      */
     public void generateConfigs(String car) throws FileNotFoundException {
-        File assetto;
         try {
             assetto = verifyAssetto();
         } catch (IOException e) {
