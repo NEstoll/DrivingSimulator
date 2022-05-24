@@ -3,12 +3,12 @@ package application;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
 /**
  * Main class for UI, will handle all subcomponents and displaying the application
- *
  */
 public class GUI extends JFrame {
     public static void main(String[] args) {
@@ -22,13 +22,22 @@ public class GUI extends JFrame {
         } catch (IOException e) {
             //prompt user for assetto location
             JFileChooser chooser = new JFileChooser();
-            chooser.setCurrentDirectory(new java.io.File("."));
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception g) {}
             chooser.setDialogTitle("Please select assettocorsa folder");
             chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             chooser.setAcceptAllFileFilterUsed(false);
             chooser.setVisible(true);
-            chooser.showOpenDialog(frame);
-
+            switch (chooser.showOpenDialog(null)) {
+                case JFileChooser.APPROVE_OPTION:
+                    DataInterface.setAssetto(chooser.getSelectedFile());
+                    break;
+                case JFileChooser.CANCEL_OPTION:
+                case JFileChooser.ERROR_OPTION:
+                    //reprompt?
+                    return;
+            }
             DataInterface.setAssetto(chooser.getSelectedFile());
 
 
