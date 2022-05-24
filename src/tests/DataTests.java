@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DataTests {
-    private File[] files = new File[] {new File("src\\data\\config.txt"), new File(""), new File("src\\data\\README.txt"), new File("src\\application\\GUI.java")};
-    private String[] types = new String[]{"config", "null", "readme", "GUI class"};
+    private File[] files = new File[] {new File("src\\data\\example\\aero.ini"), new File("src\\data\\config.txt"), new File("src\\data\\README.txt"), new File("src\\application\\GUI.java")};
+    private DataInterface.Type[] types = new DataInterface.Type[]{DataInterface.Type.AERO, DataInterface.Type.GEARS, DataInterface.Type.POWER, DataInterface.Type.SUSPENSION};
     @BeforeAll
     public static void setup() {
     }
@@ -28,10 +28,10 @@ public class DataTests {
 
     @Test
     public void testFileInput() {
-        Map<String, File> expected = new HashMap<>();
+        Map<DataInterface.Type, File> expected = new HashMap<>();
         for (int i = 0; i < files.length; i++) {
             File f = files[i];
-            String s = types[i];
+            DataInterface.Type s = types[i];
             DataInterface.inputFile(f, s);
             expected.put(s, f);
         }
@@ -40,17 +40,17 @@ public class DataTests {
 
     @Test
     public void testFileOutput() {
-        Map<String, File> expected = new HashMap<>();
+        Map<DataInterface.Type, File> expected = new HashMap<>();
         for (int i = 0; i < files.length; i++) {
             File f = files[i];
-            String s = types[i];
+            DataInterface.Type s = types[i];
             DataInterface.inputFile(f, s);
             expected.put(s, f);
         }
         File output = new File("data\\output");
         DataInterface.generateFiles(output);
 
-        for (String type: types) {
+        for (DataInterface.Type type: types) {
             System.out.println(type);
             assertTrue(new File(output,type + ".ini").exists());
         }

@@ -10,6 +10,7 @@ import java.io.File;
  * Simple file import UI. Opens a FileDialog and reads file from there.
  */
 public class FileImport extends JPanel {
+    private  DataInterface.Type type;
     private JButton fileOpen;
     private JLabel label;
 
@@ -17,9 +18,11 @@ public class FileImport extends JPanel {
     /**
      * @param text The label for the file import
      */
-    public FileImport(String text) {
+    public FileImport(String text, DataInterface.Type type) {
         //super constructor
         super(new GridBagLayout());
+
+        this.type = type;
 
         // Put text on the left
         GridBagConstraints lableConstraints = new GridBagConstraints();
@@ -57,7 +60,7 @@ public class FileImport extends JPanel {
 
     public void handleFile(String filename) {
         label.setText(filename);
-        DataInterface.inputFile(new File(filename), ((TitledBorder)getBorder()).getTitle());
+        DataInterface.inputFile(new File(filename), type);
     }
 
     public JLabel getLabel() {

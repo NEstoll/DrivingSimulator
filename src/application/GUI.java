@@ -13,6 +13,9 @@ import java.util.Map;
  * Main class for UI, will handle all subcomponents and displaying the application
  */
 public class GUI extends JFrame {
+    private static Component advancedPanel;
+    private static Component basicPanel;
+    
     public static void main(String[] args) {
         //create frame
         JFrame frame = new GUI();
@@ -44,20 +47,49 @@ public class GUI extends JFrame {
             DataInterface.setAssetto(chooser.getSelectedFile());
         }
 
+        try {
+            advancedPanelSetup("test_car");
+        } catch (FileNotFoundException e) {
+            System.out.println("test_car not found");
+        }
+        basicPanelSetup();
+
+        //content layout
+        JPanel layout = new JPanel(new BorderLayout());
+        layout.add(advancedPanel, BorderLayout.CENTER);
+
+        //add name field
+        layout.add(new TextField(), BorderLayout.PAGE_START);
+
+        //add "Submit" button
+        layout.add(new JButton("Build"), BorderLayout.PAGE_END);
+
+        //add content, make visible
+        frame.setContentPane(layout);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    private static void basicPanelSetup() {
+        //add basic content
+        JPanel basicContent = new JPanel();
+        //upload buttons (added in a row top to bottom in the center of the window)
+        basicContent.setLayout(new BoxLayout(basicContent, BoxLayout.PAGE_AXIS));
+        basicContent.add(new FileImport("Aero data", DataInterface.Type.AERO));
+        basicContent.add(new FileImport("Powertrain data", DataInterface.Type.GEARS));
+        basicContent.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
+    }
+
+    private static Component advancedPanelSetup(String loadedCar) throws FileNotFoundException {
         //advanced window
-        JScrollPane scroll = new JScrollPane();
+        advancedPanel = new JScrollPane();
         JPanel advancedContent = new JPanel();
-        scroll.createVerticalScrollBar();
-        scroll.getVerticalScrollBar().setUnitIncrement(10);
-        scroll.setViewportView(advancedContent);
+        ((JScrollPane) (advancedPanel)).getVerticalScrollBar().setUnitIncrement(10);
+        ((JScrollPane) (advancedPanel)).setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        ((JScrollPane) (advancedPanel)).setViewportView(advancedContent);
         advancedContent.setLayout(new BoxLayout(advancedContent, BoxLayout.PAGE_AXIS));
         Map<File, ArrayList<String[]>> configs = null;
-        try {
-            configs = DataInterface.generateConfigs("test_car");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.err.println("Car not found");
-        }
+        configs = DataInterface.generateConfigs(loadedCar);
         for (Map.Entry<File, ArrayList<String[]>> item: configs.entrySet()) {
             JPanel file = new JPanel();
             file.setLayout(new BoxLayout(file, BoxLayout.PAGE_AXIS));
@@ -70,9 +102,9 @@ public class GUI extends JFrame {
                     file.add(l);
                 } else {
                     JPanel textChooser = new JPanel();
-                    textChooser.setLayout(new GridLayout());
+                    textChooser.setLayout(new GridLayout(0, 2));
                     textChooser.add(new JLabel(value[0]));
-                    textChooser.add(new JTextField());
+                    textChooser.add(new JTextField(value.length==3?value[2]:""));
                     textChooser.setToolTipText(value[1]);
                     textChooser.setAlignmentX(Component.LEFT_ALIGNMENT);
                     file.add(textChooser);
@@ -80,30 +112,7 @@ public class GUI extends JFrame {
             }
             advancedContent.add(file);
         }
-
-
-        //add basic content
-        JPanel basicContent = new JPanel();
-        //upload buttons (added in a row top to bottom in the center of the window)
-        basicContent.setLayout(new BoxLayout(basicContent, BoxLayout.PAGE_AXIS));
-        basicContent.add(new FileImport("Aero"));
-        basicContent.add(new FileImport("Drivetrain"));
-        basicContent.add(new FileImport("Suspension"));
-
-        //content layout
-        JPanel layout = new JPanel(new BorderLayout());
-        layout.add(scroll, BorderLayout.CENTER);
-
-        //add name field
-        layout.add(new TextField(), BorderLayout.PAGE_START);
-
-        //add "Submit" button
-        layout.add(new JButton("Build"), BorderLayout.PAGE_END);
-
-        //add content, make visible
-        frame.setContentPane(layout);
-        frame.pack();
-        frame.setVisible(true);
+        return advancedPanel;
     }
 
 }

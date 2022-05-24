@@ -10,10 +10,10 @@ import java.util.Scanner;
  * Data class, will handle reading and writing all data to and from files, as well as any modifications that are needed.
  */
 public class DataInterface {
-    private static Map<String, File> inputFiles = new HashMap<>();
+    private static Map<Type, File> inputFiles = new HashMap<>();
     private static File assetto;
 
-    public static Map<String, File> getInputFiles() {
+    public static Map<Type, File> getInputFiles() {
         return inputFiles;
     }
 
@@ -95,25 +95,34 @@ public class DataInterface {
                 }
                 String comment;
                 String key;
+                String value;
                 if (next.contains(";")) {
                     comment = next.split(";")[1];
                     key = next.split(";")[0].split("=")[0];
+                    value = next.split(";")[0].split("=").length==2?next.split(";")[0].split("=")[1]:"";
                 } else {
                     comment = "";
                     key = next.split("=")[0];
+                    value = next.split("=").length==2?next.split("=")[1]:"";
                 }
-                config.add(new String[]{key, comment});
+                config.add(new String[]{key, comment, value});
             }
             configuration.put(f, config);
         }
         return configuration;
     }
 
-    public static void inputFile(File file, String type) {
+    public static void inputFile(File file, Type type) {
         inputFiles.put(type, file);
     }
 
     public static void generateFiles(File folder) {
+
+    }
+
+
+    public enum Type {
+        POWER, GEARS, AERO, SUSPENSION
 
     }
 }
