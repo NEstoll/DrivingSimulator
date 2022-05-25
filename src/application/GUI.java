@@ -16,7 +16,7 @@ import java.util.Map;
 public class GUI extends JFrame {
     private static Component advancedPanel;
     private static Component basicPanel;
-    
+
     public static void main(String[] args) {
         //create frame
         GUI frame = new GUI();
@@ -32,7 +32,7 @@ public class GUI extends JFrame {
         try {
             DataInterface.getAssetto();
         } catch (IOException e) {
-            while (!chooseAssetto());
+            while (!chooseAssetto()) ;
         }
 
         try {
@@ -50,7 +50,7 @@ public class GUI extends JFrame {
 
         //content layout
         JPanel layout = new JPanel(new BorderLayout());
-        layout.add(basicPanel, BorderLayout.CENTER);
+        layout.add(DataInterface.getConfigs().get("mode").equals("basic") ? basicPanel : advancedPanel, BorderLayout.CENTER);
 
         //add name field
         layout.add(new TextField(), BorderLayout.PAGE_START);
@@ -84,8 +84,8 @@ public class GUI extends JFrame {
             case JFileChooser.APPROVE_OPTION:
                 if (DataInterface.verifyAssetto(chooser.getSelectedFile())) {
                     DataInterface.setAssetto(chooser.getSelectedFile());
+                    break;
                 }
-                break;
             case JFileChooser.CANCEL_OPTION:
             case JFileChooser.ERROR_OPTION:
                 //reprompt?
@@ -105,39 +105,38 @@ public class GUI extends JFrame {
         basicPanel = basicContent;
     }
 
-    private static Component advancedPanelSetup(String loadedCar) throws IOException {
+    private static void advancedPanelSetup(String loadedCar) throws IOException {
         //advanced window
-        advancedPanel = new JScrollPane();
+        JScrollPane scrollPane = new JScrollPane();
         JPanel advancedContent = new JPanel();
-        ((JScrollPane) (advancedPanel)).getVerticalScrollBar().setUnitIncrement(10);
-        ((JScrollPane) (advancedPanel)).setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        ((JScrollPane) (advancedPanel)).setViewportView(advancedContent);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(10);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setViewportView(advancedContent);
         advancedContent.setLayout(new BoxLayout(advancedContent, BoxLayout.PAGE_AXIS));
-        Map<File, ArrayList<String[]>> configs = null;
+        Map<File, Map<String, ArrayList<String[]>>> configs = null;
         configs = DataInterface.generateConfigs(loadedCar);
-        for (Map.Entry<File, ArrayList<String[]>> item: configs.entrySet()) {
+        for (Map.Entry<File, Map<String, ArrayList<String[]>>> item : configs.entrySet()) {
             JPanel file = new JPanel();
             file.setLayout(new BoxLayout(file, BoxLayout.PAGE_AXIS));
             file.setBorder(BorderFactory.createTitledBorder(item.getKey().getName()));
-            for (String[] value: item.getValue()) {
-                if (value.length == 1) {
-                    JLabel l = new JLabel(value[0]);
-                    l.setAlignmentX(Component.LEFT_ALIGNMENT);
-                    l.setFont(new Font(null, Font.PLAIN, 18));
-                    file.add(l);
-                } else {
+            for (Map.Entry<String, ArrayList<String[]>> section : item.getValue().entrySet()) {
+                JLabel l = new JLabel(section.getKey());
+                l.setAlignmentX(Component.LEFT_ALIGNMENT);
+                l.setFont(new Font(null, Font.PLAIN, 18));
+                file.add(l);
+                for (String[] value : section.getValue()) {
                     JPanel textChooser = new JPanel();
                     textChooser.setLayout(new GridLayout(0, 2));
                     textChooser.add(new JLabel(value[0]));
-                    textChooser.add(new JTextField(value.length==3?value[2]:""));
-                    textChooser.setToolTipText(value[1]);
+                    textChooser.add(new JTextField(value.length == 3 ? value[1] : ""));
+                    textChooser.setToolTipText(value[2]);
                     textChooser.setAlignmentX(Component.LEFT_ALIGNMENT);
                     file.add(textChooser);
                 }
             }
             advancedContent.add(file);
         }
-        return advancedPanel;
+        advancedPanel = scrollPane;
     }
 
 }

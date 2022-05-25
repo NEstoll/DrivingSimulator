@@ -82,27 +82,30 @@ public class DataInterface {
         DataInterface.assettoFolder = assetto;
     }
 
+
     /**
-     * @param car the name of the car/folder to read the configuration files from
-     * @throws FileNotFoundException if data folder not found/not extracted
+     * @param car the name of the folder containing the configuration files to load
+     * @return A mapping of files and headers to {key, value, comment} triples
+     * @throws IOException if the data folder for the specified car cannot be found
      */
-    public static Map<File, ArrayList<String[]>> generateConfigs(String car) throws IOException {
+    public static Map<File, Map<String, ArrayList<String[]>>> generateConfigs(String car) throws IOException {
         File assetto = getAssetto();
         //extract data.acd
         if (!(assetto = new File(assetto, "content\\cars\\" + car + "\\data")).exists()) {
             throw new FileNotFoundException("data folder not found at " + assetto.getAbsolutePath());
         }
-        Map<File, ArrayList<String[]>> configuration = new HashMap<>();
+        Map<File, Map<String, ArrayList<String[]>>> configuration = new HashMap<>();
         for (File f : assetto.listFiles()) {
             if (!f.getName().endsWith(".ini")) {
                 continue;
             }
             Scanner fileReader = new Scanner(f);
+            Map<String, ArrayList<String[]>> headers = new HashMap<>();
             ArrayList<String[]> config = new ArrayList<>();
             while (fileReader.hasNextLine()) {
                 String next = fileReader.nextLine();
                 if (next.startsWith("[") && next.endsWith("]")) {
-                    config.add(new String[]{next});
+                    headers.put(next, (config = new ArrayList<>()));
                     continue;
                 } else if (!next.contains("=")) {
                     continue;
@@ -111,17 +114,17 @@ public class DataInterface {
                 String key;
                 String value;
                 if (next.contains(";")) {
-                    comment = next.split(";")[1];
-                    key = next.split(";")[0].split("=")[0];
-                    value = next.split(";")[0].split("=").length == 2 ? next.split(";")[0].split("=")[1] : "";
+                    comment = next.split(";")[1].trim();
+                    key = next.split(";")[0].split("=")[0].trim();
+                    value = next.split(";")[0].split("=").length == 2 ? next.split(";")[0].split("=")[1].trim() : "";
                 } else {
                     comment = "";
-                    key = next.split("=")[0];
-                    value = next.split("=").length == 2 ? next.split("=")[1] : "";
+                    key = next.split("=")[0].trim();
+                    value = next.split("=").length == 2 ? next.split("=")[1].trim() : "";
                 }
-                config.add(new String[]{key, comment, value});
+                config.add(new String[]{key, value, comment});
             }
-            configuration.put(f, config);
+            configuration.put(f, headers);
         }
         return configuration;
     }
@@ -195,6 +198,10 @@ public class DataInterface {
             System.err.println("Unable to save");
             e.printStackTrace();
         }
+    }
+
+    public static Map<String, String> getConfigs() {
+        return configs;
     }
 
 
