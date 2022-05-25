@@ -25,16 +25,16 @@ public class FileImport extends JPanel {
         this.type = type;
 
         // Put text on the left
-        GridBagConstraints lableConstraints = new GridBagConstraints();
-        lableConstraints.gridx = 0;
-        lableConstraints.gridy = 0;
-        lableConstraints.gridwidth = 2;
-        lableConstraints.gridheight = 3;
-        lableConstraints.weightx = 1.0;
-        lableConstraints.fill = GridBagConstraints.HORIZONTAL;
+        GridBagConstraints labelConstraints = new GridBagConstraints();
+        labelConstraints.gridx = 0;
+        labelConstraints.gridy = 0;
+        labelConstraints.gridwidth = 2;
+        labelConstraints.gridheight = 3;
+        labelConstraints.weightx = 1.0;
+        labelConstraints.fill = GridBagConstraints.HORIZONTAL;
         File old = type!=DataInterface.Type.NONE?DataInterface.getInputFiles().get(type):null;
         label = new JLabel(old!=null?old.getName():"No file selected");
-        this.add(label, lableConstraints);
+        this.add(label, labelConstraints);
 
         // Put button on the right
         GridBagConstraints buttonConstraints = new GridBagConstraints();
