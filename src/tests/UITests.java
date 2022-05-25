@@ -1,9 +1,9 @@
 package tests;
 
+import application.DataInterface;
 import application.FileImport;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +19,10 @@ public class UITests {
 
     @Test
     public void testFileImport() {
+        FileImport test = new FileImport("This is a test", DataInterface.Type.NONE);
+        assertEquals("No file selected", test.getLabel().getText());
+        test.handleFile("test.txt");
+        assertEquals("test.txt", test.getLabel().getText());
 
     }
 

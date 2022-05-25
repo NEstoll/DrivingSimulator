@@ -5,38 +5,38 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.jar.JarEntry;
 
 /**
  * Data class, will handle reading and writing all data to and from files, as well as any modifications that are needed.
  */
 public class DataInterface {
     private static Map<Type, File> inputFiles = new HashMap<>();
-    private static File assetto;
+    private static File assettoFolder;
+    private static Map<File, Map<String, String>> outputConfiguration = new HashMap<>();
+    private static Map<String, String> configs = new HashMap<>();
 
     public static Map<Type, File> getInputFiles() {
         return inputFiles;
     }
 
     /**
-     * Verifies that Assetto Corsa is installed on the computer, and returns the location of the install if found. Relies on the windows registry, will not work on other systems.
+     * Looks for an Assetto Corsa installation on the computer, and returns the location of the install if found. Relies on the windows registry, will not work on other systems.
      *
      * @return a File pointing to the top level folder of the Assetto Corsa installation
-     * @throws IOException if registry query fails
+     * @throws IOException           if registry query fails
      * @throws FileNotFoundException if Assetto Corsa isn't found
      */
-    public static File verifyAssetto() throws IOException, FileNotFoundException { //see if Assetto is installed (only works on windows, but so does Assetto)
-        if (assetto != null) {
-            return assetto;
-        }
+    private static File findAssetto() throws IOException, FileNotFoundException { //see if Assetto is installed (only works on windows, but so does Assetto)
         //query registry for steam path
         InputStream is = Runtime.getRuntime().exec("reg query " + "\"HKEY_CURRENT_USER\\SOFTWARE\\Valve\\Steam\" /v SteamPath").getInputStream();
         StringWriter sw = new StringWriter();
-        for (int c; (c = is.read()) != -1;)
+        for (int c; (c = is.read()) != -1; )
             sw.write(c);
         if (sw.toString().equals("")) {
             throw new IOException();
         }
-        File libraries = new File(sw.toString().substring(sw.toString().indexOf("REG_SZ    ") + "REG_SZ    ".length()).trim()+"\\steamapps\\libraryfolders.vdf");
+        File libraries = new File(sw.toString().substring(sw.toString().indexOf("REG_SZ    ") + "REG_SZ    ".length()).trim() + "\\steamapps\\libraryfolders.vdf");
         //read all of the libraries (places where steam stores files)
         Scanner reader = new Scanner(libraries);
         String next;
@@ -45,41 +45,55 @@ public class DataInterface {
                 continue;
             }
             File library = new File(next.replaceAll(".*\"(.+?)\".*", "$1") + "\\steamapps\\common\\assettocorsa");
-            if (library.exists()) {
-                assetto = library;
+            if (verifyAssetto(library)) {
                 return library;
             }
 
         }
         //none found, return empty file
-        throw new FileNotFoundException("Assetto Corsa not found");
+        return null;
+    }
+
+
+    /**
+     * @param assetto The File representing the potential location of Assetto Corsa
+     * @return true if assetto does point to the install location of Assetto Corsa; false otherwise
+     */
+    public static boolean verifyAssetto(File assetto) {
+        return assetto != null && new File(assetto, "AssettoCorsa.exe").exists();
+    }
+
+    /**
+     * @return the folder containing Assetto Corsa
+     * @throws IOException if Assetto Corsa can't be found
+     */
+    public static File getAssetto() throws IOException {
+        if (assettoFolder != null) {
+            return assettoFolder;
+        } else {
+            return findAssetto();
+        }
     }
 
     /**
      * @param assetto The assetocorsa folder containing all of the game's data and files
      */
     public static void setAssetto(File assetto) {
-        DataInterface.assetto = assetto;
+        DataInterface.assettoFolder = assetto;
     }
 
     /**
      * @param car the name of the car/folder to read the configuration files from
      * @throws FileNotFoundException if data folder not found/not extracted
      */
-    public static Map<File, ArrayList<String[]>> generateConfigs(String car) throws FileNotFoundException {
-        try {
-            assetto = verifyAssetto();
-        } catch (IOException e) {
-            System.err.println("Assetto Corsa not found, please provide:");
-            //add file import
-            return null;
-        }
+    public static Map<File, ArrayList<String[]>> generateConfigs(String car) throws IOException {
+        File assetto = getAssetto();
         //extract data.acd
         if (!(assetto = new File(assetto, "content\\cars\\" + car + "\\data")).exists()) {
-            throw new FileNotFoundException("data folder not found");
+            throw new FileNotFoundException("data folder not found at " + assetto.getAbsolutePath());
         }
         Map<File, ArrayList<String[]>> configuration = new HashMap<>();
-        for (File f: assetto.listFiles()) {
+        for (File f : assetto.listFiles()) {
             if (!f.getName().endsWith(".ini")) {
                 continue;
             }
@@ -99,11 +113,11 @@ public class DataInterface {
                 if (next.contains(";")) {
                     comment = next.split(";")[1];
                     key = next.split(";")[0].split("=")[0];
-                    value = next.split(";")[0].split("=").length==2?next.split(";")[0].split("=")[1]:"";
+                    value = next.split(";")[0].split("=").length == 2 ? next.split(";")[0].split("=")[1] : "";
                 } else {
                     comment = "";
                     key = next.split("=")[0];
-                    value = next.split("=").length==2?next.split("=")[1]:"";
+                    value = next.split("=").length == 2 ? next.split("=")[1] : "";
                 }
                 config.add(new String[]{key, comment, value});
             }
@@ -120,9 +134,72 @@ public class DataInterface {
 
     }
 
+    public static void loadConfig() throws IOException {
+        File config;
+        if ((config = new File("src\\data\\config.txt")).exists()) {
+            //dev location
+            configs.put("data-folder", "src\\data");
+        } else if ((config = new File("data\\config.txt")).exists()) {
+            //eventual location of data folder
+            configs.put("data-folder", "data");
+        } else {
+            config.getParentFile().mkdir();
+            config.createNewFile();
+            //default configs
+            configs.put("data-folder", "data");
+        }
+        Scanner in = new Scanner(config);
+        while (in.hasNextLine()) {
+            String next = in.nextLine();
+            if (next.startsWith("#") || next.startsWith("//")) {
+                continue;
+            }
+            configs.put(next.split("=")[0], next.split("=")[1]);
+        }
+    }
+
+    public static void load() throws IOException {
+        loadConfig();
+        File prev;
+        if (configs.containsKey("prev-location")) {
+            prev = new File(configs.get("prev-location"));
+        } else {
+            prev = new File(configs.get("data-folder") + "\\prev.txt");
+        }
+        Scanner in = null;
+        try {
+            in = new Scanner(prev);
+        } catch (FileNotFoundException e) {
+            return;
+        }
+        while (in.hasNextLine()) {
+            String next = in.nextLine();
+            inputFiles.put(Type.valueOf(next.split("=")[0]), new File(next.split("=")[1]));
+        }
+    }
+
+    public static void save() {
+        File prev;
+        if (configs.containsKey("prev-location")) {
+            prev = new File(configs.get("prev-location"));
+        } else {
+            prev = new File(configs.get("data-folder") + "\\prev.txt");
+        }
+        try {
+            prev.createNewFile();
+            PrintStream out = new PrintStream(prev);
+            for (Map.Entry e : inputFiles.entrySet()) {
+                out.println(e.getKey() + "=" + e.getValue());
+            }
+        } catch (IOException e) {
+            System.err.println("Unable to save");
+            e.printStackTrace();
+        }
+    }
+
 
     public enum Type {
-        POWER, GEARS, AERO, SUSPENSION
+        POWER, GEARS, AERO, SUSPENSION, NONE
 
     }
 }

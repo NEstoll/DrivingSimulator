@@ -66,7 +66,7 @@ public class DataTests {
         f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
         GUI.main(null);
         f = (JFrame) GUI.getFrames()[1];
-        assertEquals("src\\data\\config.txt", findFileImport((JPanel) f.getContentPane()).getLabel().getText());
+        assertEquals("config.txt", findFileImport((JPanel) f.getContentPane()).getLabel().getText());
     }
 
     public FileImport findFileImport(JPanel p) {

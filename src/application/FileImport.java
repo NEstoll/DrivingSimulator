@@ -32,7 +32,8 @@ public class FileImport extends JPanel {
         lableConstraints.gridheight = 3;
         lableConstraints.weightx = 1.0;
         lableConstraints.fill = GridBagConstraints.HORIZONTAL;
-        label = new JLabel("No File Uploaded");
+        File old = type!=DataInterface.Type.NONE?DataInterface.getInputFiles().get(type):null;
+        label = new JLabel(old!=null?old.getName():"No file selected");
         this.add(label, lableConstraints);
 
         // Put button on the right

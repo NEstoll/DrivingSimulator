@@ -2,9 +2,10 @@ package application;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -18,45 +19,38 @@ public class GUI extends JFrame {
     
     public static void main(String[] args) {
         //create frame
-        JFrame frame = new GUI();
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        GUI frame = new GUI();
+        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                frame.close();
+            }
+        });
 
         //create data interface
         try {
-            DataInterface.verifyAssetto();
+            DataInterface.getAssetto();
         } catch (IOException e) {
-            //prompt user for assetto location
-            JFileChooser chooser = new JFileChooser();
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception g) {
-            }
-            chooser.setDialogTitle("Please select assettocorsa folder");
-            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            chooser.setAcceptAllFileFilterUsed(false);
-            chooser.setVisible(true);
-            switch (chooser.showOpenDialog(null)) {
-                case JFileChooser.APPROVE_OPTION:
-                    DataInterface.setAssetto(chooser.getSelectedFile());
-                    break;
-                case JFileChooser.CANCEL_OPTION:
-                case JFileChooser.ERROR_OPTION:
-                    //reprompt?
-                    return;
-            }
-            DataInterface.setAssetto(chooser.getSelectedFile());
+            while (!chooseAssetto());
+        }
+
+        try {
+            DataInterface.load();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         try {
             advancedPanelSetup("test_car");
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             System.out.println("test_car not found");
         }
         basicPanelSetup();
 
         //content layout
         JPanel layout = new JPanel(new BorderLayout());
-        layout.add(advancedPanel, BorderLayout.CENTER);
+        layout.add(basicPanel, BorderLayout.CENTER);
 
         //add name field
         layout.add(new TextField(), BorderLayout.PAGE_START);
@@ -70,6 +64,36 @@ public class GUI extends JFrame {
         frame.setVisible(true);
     }
 
+    public void close() {
+        DataInterface.save();
+        this.dispose();
+    }
+
+    private static boolean chooseAssetto() {
+        //prompt user for assetto location
+        JFileChooser chooser = new JFileChooser();
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception g) {
+        }
+        chooser.setDialogTitle("Please select assettocorsa folder");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        chooser.setVisible(true);
+        switch (chooser.showOpenDialog(null)) {
+            case JFileChooser.APPROVE_OPTION:
+                if (DataInterface.verifyAssetto(chooser.getSelectedFile())) {
+                    DataInterface.setAssetto(chooser.getSelectedFile());
+                }
+                break;
+            case JFileChooser.CANCEL_OPTION:
+            case JFileChooser.ERROR_OPTION:
+                //reprompt?
+                return false;
+        }
+        return true;
+    }
+
     private static void basicPanelSetup() {
         //add basic content
         JPanel basicContent = new JPanel();
@@ -78,9 +102,10 @@ public class GUI extends JFrame {
         basicContent.add(new FileImport("Aero data", DataInterface.Type.AERO));
         basicContent.add(new FileImport("Powertrain data", DataInterface.Type.GEARS));
         basicContent.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
+        basicPanel = basicContent;
     }
 
-    private static Component advancedPanelSetup(String loadedCar) throws FileNotFoundException {
+    private static Component advancedPanelSetup(String loadedCar) throws IOException {
         //advanced window
         advancedPanel = new JScrollPane();
         JPanel advancedContent = new JPanel();
