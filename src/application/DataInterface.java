@@ -1,11 +1,7 @@
 package application;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.jar.JarEntry;
+import java.util.*;
 
 /**
  * Data class, will handle reading and writing all data to and from files, as well as any modifications that are needed.
@@ -15,6 +11,7 @@ public class DataInterface {
     private static File assettoFolder;
     private static Map<File, Map<String, String>> outputConfiguration = new HashMap<>();
     private static Map<String, String> configs = new HashMap<>();
+    private static Map<File, ConfigurationFile> output = new HashMap<>();
 
     public static Map<Type, File> getInputFiles() {
         return inputFiles;
@@ -128,6 +125,14 @@ public class DataInterface {
 
     public static void inputFile(File file, Type type) {
         inputFiles.put(type, file);
+    }
+
+    public static void parseFiles() {
+        Arrays.stream(Type.values()).forEach(t -> InputParser.parse(t, inputFiles.get(t)));
+    }
+
+    public static ConfigurationFile getOutput(File f) {
+        return output.get(f);
     }
 
     public static void generateFiles(File folder) {
