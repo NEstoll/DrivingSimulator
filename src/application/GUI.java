@@ -43,7 +43,7 @@ public class GUI extends JFrame {
         }
 
         try {
-            advancedPanelSetup("test_car");
+            advancedPanelSetup("mines_formula_0");
         } catch (IOException e) {
             System.out.println("test_car not found");
         }
@@ -110,6 +110,7 @@ public class GUI extends JFrame {
         basicContent.setLayout(new BoxLayout(basicContent, BoxLayout.PAGE_AXIS));
         basicContent.add(new FileImport("Aero data", DataInterface.Type.AERO));
         basicContent.add(new FileImport("Powertrain data", DataInterface.Type.TORQUE));
+        basicContent.add(new FileImport("Gear data", DataInterface.Type.GEARS));
         basicContent.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
         basicPanel = basicContent;
     }

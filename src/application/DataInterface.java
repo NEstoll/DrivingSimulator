@@ -147,8 +147,10 @@ public class DataInterface {
     public static void parseFiles() {
         Arrays.stream(Type.values()).forEach(t -> InputParser.parse(t, inputFiles.get(t)));
         try {
-            generateFiles(new File("src\\data\\output"));
-        } catch (FileNotFoundException e) {
+            File newFile = new File("src\\data\\output");
+            newFile.mkdir();
+            generateFiles(newFile);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -157,11 +159,13 @@ public class DataInterface {
         return output.get(f);
     }
 
-    public static void generateFiles(File folder) throws FileNotFoundException {
+    public static void generateFiles(File folder) throws IOException {
         for (Map.Entry<String, FileInterface> e: output.entrySet()) {
             File output = new File(folder, e.getKey());
+            output.createNewFile();
             PrintStream out = new PrintStream(output);
             e.getValue().writeFile(out);
+            out.flush();
         }
     }
 
