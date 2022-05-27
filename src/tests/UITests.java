@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
+import java.io.File;
 
 public class UITests {
     static JFrame testFrame;
@@ -21,7 +22,7 @@ public class UITests {
     public void testFileImport() {
         FileImport test = new FileImport("This is a test", DataInterface.Type.NONE);
         assertEquals("No file selected", test.getLabel().getText());
-        test.handleFile("test.txt");
+        test.handleFile(new File("test.txt"));
         assertEquals("test.txt", test.getLabel().getText());
 
     }

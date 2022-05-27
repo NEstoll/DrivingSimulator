@@ -11,8 +11,8 @@ public class InputParser {
                 case SUSPENSION:
                     suspension(input);
                     break;
-                case POWER:
-                    power(input);
+                case TORQUE:
+                    torque(input);
                     break;
                 case GEARS:
                     gears(input);
@@ -24,13 +24,13 @@ public class InputParser {
         }
     }
 
-    private static void power(File file) throws FileNotFoundException {
-        //TODO actual code
+    private static void torque(File file) throws FileNotFoundException {
         Scanner reader = new Scanner(file);
         while (reader.hasNextLine()) {
             String[] next = reader.nextLine().split(",");
-            DataInterface.getOutput(new File("power.lut")).setValue("", next[0], next[1]);
+            ((LUTFile)DataInterface.getOutput("power.lut")).addValue(next[0], next[1]);
         }
+        ((INIFile)DataInterface.getOutput("engine.ini")).setValue("HEADER", "POWER_CURVE", "power.lut");
     }
 
     private static void gears(File file) {

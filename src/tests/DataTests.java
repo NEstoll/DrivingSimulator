@@ -6,17 +6,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import application.FileImport;
 import application.GUI;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.function.Executable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DataTests {
     private File[] files = new File[] {new File("src\\data\\example\\aero.ini"), new File("src\\data\\config.txt"), new File("src\\data\\README.txt"), new File("src\\application\\GUI.java")};
-    private DataInterface.Type[] types = new DataInterface.Type[]{DataInterface.Type.AERO, DataInterface.Type.GEARS, DataInterface.Type.POWER, DataInterface.Type.SUSPENSION};
+    private DataInterface.Type[] types = new DataInterface.Type[]{DataInterface.Type.AERO, DataInterface.Type.GEARS, DataInterface.Type.TORQUE, DataInterface.Type.SUSPENSION};
     @BeforeAll
     public static void setup() {
     }
@@ -48,7 +50,7 @@ public class DataTests {
             expected.put(s, f);
         }
         File output = new File("data\\output");
-        DataInterface.generateFiles(output);
+        assertDoesNotThrow(() -> DataInterface.generateFiles(output));
 
         for (DataInterface.Type type: types) {
             System.out.println(type);
@@ -62,7 +64,7 @@ public class DataTests {
         GUI.main(null);
         JFrame f = (JFrame) GUI.getFrames()[0];
         f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        findFileImport((JPanel) f.getContentPane()).handleFile("src\\data\\config.txt");
+        findFileImport((JPanel) f.getContentPane()).handleFile(new File("src\\data\\config.txt"));
         f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
         GUI.main(null);
         f = (JFrame) GUI.getFrames()[1];

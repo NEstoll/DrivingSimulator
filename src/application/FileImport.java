@@ -50,18 +50,25 @@ public class FileImport extends JPanel {
         fileOpen.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                FileDialog files = new FileDialog(new JFrame());
-                files.setVisible(true);
-                handleFile(files.getFile());
+                JFileChooser choose = new JFileChooser();
+                choose.setDialogTitle("Please select file");
+//                choose.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+//                choose.setAcceptAllFileFilterUsed(false);
+                choose.setVisible(true);
+                choose.showOpenDialog(new JFrame());
+                handleFile(choose.getSelectedFile());
             }
         });
         this.add(fileOpen, buttonConstraints);
         this.setBorder(BorderFactory.createTitledBorder(text));
     }
 
-    public void handleFile(String filename) {
-        label.setText(filename);
-        DataInterface.inputFile(new File(filename), type);
+    public void handleFile(File file) {
+        if (file == null) {
+            return;
+        }
+        label.setText(file.getName());
+        DataInterface.inputFile(file, type);
     }
 
     public JLabel getLabel() {

@@ -2,6 +2,7 @@ package application;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -56,7 +57,15 @@ public class GUI extends JFrame {
         layout.add(new TextField(), BorderLayout.PAGE_START);
 
         //add "Submit" button
-        layout.add(new JButton("Build"), BorderLayout.PAGE_END);
+        JButton build =  new JButton("Build");
+        build.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DataInterface.parseFiles();
+                frame.close();
+            }
+        });
+        layout.add(build, BorderLayout.PAGE_END);
 
         //add content, make visible
         frame.setContentPane(layout);
@@ -100,7 +109,7 @@ public class GUI extends JFrame {
         //upload buttons (added in a row top to bottom in the center of the window)
         basicContent.setLayout(new BoxLayout(basicContent, BoxLayout.PAGE_AXIS));
         basicContent.add(new FileImport("Aero data", DataInterface.Type.AERO));
-        basicContent.add(new FileImport("Powertrain data", DataInterface.Type.GEARS));
+        basicContent.add(new FileImport("Powertrain data", DataInterface.Type.TORQUE));
         basicContent.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
         basicPanel = basicContent;
     }

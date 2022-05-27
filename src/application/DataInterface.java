@@ -9,9 +9,8 @@ import java.util.*;
 public class DataInterface {
     private static Map<Type, File> inputFiles = new HashMap<>();
     private static File assettoFolder;
-    private static Map<File, Map<String, String>> outputConfiguration = new HashMap<>();
     private static Map<String, String> configs = new HashMap<>();
-    private static Map<File, ConfigurationFile> output = new HashMap<>();
+    private static Map<String, FileInterface> output = new HashMap<>();
 
     public static Map<Type, File> getInputFiles() {
         return inputFiles;
@@ -93,9 +92,23 @@ public class DataInterface {
         }
         Map<File, Map<String, ArrayList<String[]>>> configuration = new HashMap<>();
         for (File f : assetto.listFiles()) {
-            if (!f.getName().endsWith(".ini")) {
-                continue;
+            FileInterface fileIO;
+            switch (f.getName().split("\\.")[1]) {
+                case ".ini":
+                    fileIO = new INIFile();
+                    break;
+                case ".lut":
+                    fileIO = new LUTFile();
+                    break;
+                case ".rto":
+                    fileIO = new RTOFile();
+                default:
+                    return null;
             }
+            fileIO.readFile(f);
+            output.put(f.getName(), fileIO);
+
+            //just here for advanced mode
             Scanner fileReader = new Scanner(f);
             Map<String, ArrayList<String[]>> headers = new HashMap<>();
             ArrayList<String[]> config = new ArrayList<>();
@@ -132,21 +145,30 @@ public class DataInterface {
 
     public static void parseFiles() {
         Arrays.stream(Type.values()).forEach(t -> InputParser.parse(t, inputFiles.get(t)));
+        try {
+            generateFiles(new File("src\\data\\output"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
-    public static ConfigurationFile getOutput(File f) {
+    public static FileInterface getOutput(String f) {
         return output.get(f);
     }
 
-    public static void generateFiles(File folder) {
-
+    public static void generateFiles(File folder) throws FileNotFoundException {
+        for (Map.Entry<String, FileInterface> e: output.entrySet()) {
+            File output = new File(folder, e.getKey());
+            PrintStream out = new PrintStream(output);
+            e.getValue().writeFile(out);
+        }
     }
 
     public static String formatString(Type t) {
         switch (t) {
             case SUSPENSION:
                 return "csv with connection vertices";
-            case POWER:
+            case TORQUE:
                 return "csv containing torque per RPM";
         }
         return null;
@@ -172,7 +194,11 @@ public class DataInterface {
             if (next.startsWith("#") || next.startsWith("//")) {
                 continue;
             }
-            configs.put(next.split("=")[0], next.split("=")[1]);
+            try {
+                configs.put(next.split("=")[0], next.split("=")[1]);
+            } catch (Exception e) {
+                //bad config, ignore
+            }
         }
     }
 
@@ -221,7 +247,7 @@ public class DataInterface {
 
 
     public enum Type {
-        POWER, GEARS, AERO, SUSPENSION, NONE
+        TORQUE, GEARS, AERO, SUSPENSION, NONE
 
     }
 }
