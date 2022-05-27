@@ -94,14 +94,15 @@ public class DataInterface {
         for (File f : assetto.listFiles()) {
             FileInterface fileIO;
             switch (f.getName().split("\\.")[1]) {
-                case ".ini":
+                case "ini":
                     fileIO = new INIFile();
                     break;
-                case ".lut":
+                case "lut":
                     fileIO = new LUTFile();
                     break;
-                case ".rto":
+                case "rto":
                     fileIO = new RTOFile();
+                    break;
                 default:
                     return null;
             }
