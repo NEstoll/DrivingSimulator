@@ -142,6 +142,16 @@ public class DataInterface {
 
     }
 
+    public static String formatString(Type t) {
+        switch (t) {
+            case SUSPENSION:
+                return "csv with connection vertices";
+            case POWER:
+                return "csv containing torque per RPM";
+        }
+        return null;
+    }
+
     public static void loadConfig() throws IOException {
         File config;
         if ((config = new File("src\\data\\config.txt")).exists()) {
