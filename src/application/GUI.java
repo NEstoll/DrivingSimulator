@@ -43,9 +43,10 @@ public class GUI extends JFrame {
         }
 
         try {
-            advancedPanelSetup("test_car");
+            //TODO ask user for car, don't hardcode
+            advancedPanelSetup("test_car2");
         } catch (IOException e) {
-            System.out.println("test_car not found");
+            System.out.println(e.getMessage());
         }
         basicPanelSetup();
 
