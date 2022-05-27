@@ -52,6 +52,7 @@ public class FileImport extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser choose = new JFileChooser();
                 choose.setDialogTitle("Please select file");
+                choose.setCurrentDirectory(new File("."));
 //                choose.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 //                choose.setAcceptAllFileFilterUsed(false);
                 choose.setVisible(true);

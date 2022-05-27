@@ -88,7 +88,7 @@ public class DataInterface {
         File assetto = getAssetto();
         //extract data.acd
         if (!(assetto = new File(assetto, "content\\cars\\" + car + "\\data")).exists()) {
-            throw new FileNotFoundException("data folder not found at " + assetto.getAbsolutePath());
+            throw new FileNotFoundException("data folder not found at " + assetto.getAbsolutePath() + "\nmake sure you have extracted data.acd");
         }
         Map<File, Map<String, ArrayList<String[]>>> configuration = new HashMap<>();
         for (File f : assetto.listFiles()) {
@@ -165,7 +165,7 @@ public class DataInterface {
             output.createNewFile();
             PrintStream out = new PrintStream(output);
             e.getValue().writeFile(out);
-            out.flush();
+            out.close();
         }
     }
 
