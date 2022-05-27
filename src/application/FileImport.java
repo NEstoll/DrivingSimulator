@@ -25,7 +25,7 @@ public class FileImport extends JPanel {
         GridBagConstraints lableConstraints = new GridBagConstraints();
         lableConstraints.gridx = 0;
         lableConstraints.gridy = 0;
-        lableConstraints.gridwidth = 2;
+        lableConstraints.gridwidth = 1;
         lableConstraints.gridheight = 3;
         lableConstraints.weightx = 1.0;
         lableConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -34,11 +34,11 @@ public class FileImport extends JPanel {
 
         // Put button on the right
         GridBagConstraints buttonConstraints = new GridBagConstraints();
-        buttonConstraints.gridx = 2;
+        buttonConstraints.gridx = 1;
         buttonConstraints.gridy = 0;
         buttonConstraints.gridwidth = 1;
         buttonConstraints.gridheight = 3;
-        buttonConstraints.weightx = 0;
+        buttonConstraints.weightx = .3;
         buttonConstraints.fill = GridBagConstraints.HORIZONTAL;
 
         //add button functionality
@@ -52,6 +52,35 @@ public class FileImport extends JPanel {
             }
         });
         this.add(fileOpen, buttonConstraints);
+
+        //moved the label to a tooltip -Nicholas
+
+//        // add info label
+//        GridBagConstraints infoLabelConstraints = new GridBagConstraints();
+//        infoLabelConstraints.gridx = 2;
+//        infoLabelConstraints.gridy = 0;
+//        infoLabelConstraints.gridwidth = 1;
+//        infoLabelConstraints.gridheight = 1;
+//        infoLabelConstraints.weightx = 0;
+//        infoLabelConstraints.fill = GridBagConstraints.HORIZONTAL;
+//        this.add(new JLabel("More Info"), infoLabelConstraints);
+
+        // add info button
+        GridBagConstraints infoIconConstraints = new GridBagConstraints();
+        infoIconConstraints.gridx = 2;
+        infoIconConstraints.gridy = 0;
+        infoIconConstraints.gridwidth = 1;
+        infoIconConstraints.gridheight = 3;
+        infoIconConstraints.weightx = 0;
+        infoIconConstraints.fill = GridBagConstraints.HORIZONTAL;
+
+        ImageIcon icon = new ImageIcon("icon.png");
+        icon.setImage(icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH));
+        JButton iconButton = new JButton(icon);
+        iconButton.setToolTipText("Click for more Info");
+        this.add(iconButton, infoIconConstraints);
+
+
         this.setBorder(BorderFactory.createTitledBorder(text));
     }
 

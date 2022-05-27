@@ -57,29 +57,7 @@ public class GUI extends JFrame {
         uploads.add(new FileImport("Suspension"));
         basicContent.add(uploads, BorderLayout.CENTER);
 
-        //add info section
-        JPanel info = new JPanel();
-        info.setLayout(new BoxLayout(info, BoxLayout.PAGE_AXIS));
-        info.add(new JLabel("Click for More Info"));
-        Icon icon = new ImageIcon("icon.png");
-        JButton iconButton = new JButton(icon);
-        Box box = Box.createVerticalBox();
-        box.add(iconButton);
-        info.add(iconButton);
-
-        info.add(new JLabel("Click for More Info"));
-        Icon icon2 = new ImageIcon("icon.png");
-        JButton iconButton2 = new JButton(icon2);
-        Box box2 = Box.createVerticalBox();
-        box2.add(iconButton2);
-        info.add(iconButton2);
-
-        info.add(new JLabel("Click for More Info"));
-        Icon icon3 = new ImageIcon("icon.png");
-        JButton iconButton3 = new JButton(icon3);
-        Box box3 = Box.createVerticalBox();
-        box3.add(iconButton3);
-        info.add(iconButton3);
+        //info button added to file import class
 
         //add name field
         basicContent.add(new TextField(), BorderLayout.PAGE_START);
