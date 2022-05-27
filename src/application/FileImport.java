@@ -80,7 +80,15 @@ public class FileImport extends JPanel {
         iconButton.setToolTipText("Click for more Info");
         this.add(iconButton, infoIconConstraints);
 
+        iconButton.addActionListener(new ActionListener() {
 
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(iconButton, "Message");
+            }
+
+        });
+        
         this.setBorder(BorderFactory.createTitledBorder(text));
     }
 
