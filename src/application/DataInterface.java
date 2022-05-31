@@ -223,7 +223,11 @@ public class DataInterface {
         }
         while (in.hasNextLine()) {
             String next = in.nextLine();
-            inputFiles.put(Type.valueOf(next.split("=")[0]), new File(next.split("=")[1]));
+            try {
+                inputFiles.put(Type.valueOf(next.split("=")[0]), new File(next.split("=")[1]));
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
         }
     }
 

@@ -49,7 +49,7 @@ public class DataTests {
             DataInterface.inputFile(f, s);
             expected.put(s, f);
         }
-        File output = new File("data\\output");
+        File output = new File("src\\data\\output");
         assertDoesNotThrow(() -> DataInterface.generateFiles(output));
 
         for (DataInterface.Type type: types) {

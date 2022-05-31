@@ -44,7 +44,7 @@ public class GUI extends JFrame {
 
         try {
             //TODO ask user for car, don't hardcode
-            advancedPanelSetup("test_car2");
+            advancedPanelSetup("test_car");
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
