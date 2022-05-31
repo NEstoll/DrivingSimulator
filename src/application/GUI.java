@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -55,15 +54,23 @@ public class GUI extends JFrame {
         layout.add(DataInterface.getConfigs().get("mode").equals("basic") ? basicPanel : advancedPanel, BorderLayout.CENTER);
 
         //add name field
-        layout.add(new TextField(), BorderLayout.PAGE_START);
+        JTextField name = new JTextField();
+        layout.add(name, BorderLayout.PAGE_START);
 
         //add "Submit" button
         JButton build =  new JButton("Build");
         build.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                DataInterface.parseFiles();
-                frame.close();
+                try {
+                    if (!name.getText().equals("")) {
+                        DataInterface.outputFiles(new File(DataInterface.getAssetto(), "content\\cars\\" + name.getText()));
+                        frame.close();
+                    }
+                } catch (IOException ioException) {
+                    System.err.println("Unable to generate files");
+                    ioException.printStackTrace();
+                }
             }
         });
         layout.add(build, BorderLayout.PAGE_END);

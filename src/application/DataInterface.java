@@ -144,12 +144,13 @@ public class DataInterface {
         inputFiles.put(type, file);
     }
 
-    public static void parseFiles() {
+    public static void outputFiles(File outputFolder) {
         Arrays.stream(Type.values()).forEach(t -> InputParser.parse(t, inputFiles.get(t)));
         try {
-            File newFile = new File("src\\data\\output");
-            newFile.mkdir();
-            generateFiles(newFile);
+            outputFolder.mkdir();
+            File dataFolder = new File(outputFolder, "data");
+            dataFolder.mkdir();
+            generateDataFiles(dataFolder);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -159,7 +160,7 @@ public class DataInterface {
         return output.get(f);
     }
 
-    public static void generateFiles(File folder) throws IOException {
+    public static void generateDataFiles(File folder) throws IOException {
         for (Map.Entry<String, FileInterface> e: output.entrySet()) {
             File output = new File(folder, e.getKey());
             output.createNewFile();

@@ -6,13 +6,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import application.FileImport;
 import application.GUI;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.function.Executable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +48,7 @@ public class DataTests {
             expected.put(s, f);
         }
         File output = new File("src\\data\\output");
-        assertDoesNotThrow(() -> DataInterface.generateFiles(output));
+        assertDoesNotThrow(() -> DataInterface.generateDataFiles(output));
 
         for (DataInterface.Type type: types) {
             System.out.println(type);
