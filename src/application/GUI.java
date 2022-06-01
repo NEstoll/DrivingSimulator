@@ -64,11 +64,12 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (!name.getText().equals("")) {
+                        DataInterface.setName(name.getText());
                         DataInterface.outputFiles(new File(DataInterface.getAssetto(), "content\\cars\\" + name.getText()));
                         frame.close();
                     }
                 } catch (IOException ioException) {
-                    System.err.println("Unable to generate files");
+                    System.err.println(ioException.getMessage());
                     ioException.printStackTrace();
                 }
             }

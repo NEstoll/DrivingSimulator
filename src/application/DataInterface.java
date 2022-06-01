@@ -1,6 +1,8 @@
 package application;
 
 import java.io.*;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
 import java.util.*;
 
 /**
@@ -87,7 +89,10 @@ public class DataInterface {
     public static Map<File, Map<String, ArrayList<String[]>>> generateConfigs(String car) throws IOException {
         File assetto = getAssetto();
         //extract data.acd
-        if (!(assetto = new File(assetto, "content\\cars\\" + car + "\\data")).exists()) {
+        if (!(assetto = new File(assetto, "content\\cars\\" + car)).exists()) {
+            throw new FileNotFoundException("car not found at " + assetto.getAbsolutePath());
+        }
+        if (!(assetto = new File(assetto, "data")).exists()) {
             throw new FileNotFoundException("data folder not found at " + assetto.getAbsolutePath() + "\nmake sure you have extracted data.acd");
         }
         Map<File, Map<String, ArrayList<String[]>>> configuration = new HashMap<>();
@@ -148,6 +153,9 @@ public class DataInterface {
         Arrays.stream(Type.values()).forEach(t -> InputParser.parse(t, inputFiles.get(t)));
         try {
             outputFolder.mkdir();
+            //model
+            outputModel("test_car", outputFolder);
+            //data
             File dataFolder = new File(outputFolder, "data");
             dataFolder.mkdir();
             generateDataFiles(dataFolder);
@@ -167,6 +175,25 @@ public class DataInterface {
             PrintStream out = new PrintStream(output);
             e.getValue().writeFile(out);
             out.close();
+        }
+    }
+
+    public static void outputModel(String carName, File outputFolder) throws IOException {
+        File car = new File(getAssetto(), "content\\cars\\" + carName);
+        if (!car.exists()) {
+            throw new FileNotFoundException("Unable to find reference files at " + car.getAbsolutePath());
+        }
+        for (File f: car.listFiles()) {
+            copy(f, new File(outputFolder, f.getName()));
+        }
+    }
+
+    private static void copy(File from, File to) throws IOException {
+        Files.copy(from.toPath(), to.toPath());
+        if (from.isDirectory()) {
+            for (File f: from.listFiles()) {
+                copy(f, new File(to, f.getName()));
+            }
         }
     }
 
@@ -253,6 +280,10 @@ public class DataInterface {
 
     public static Map<String, String> getConfigs() {
         return configs;
+    }
+
+    public static void setName(String text) {
+        //set the screen name of the car (it's in ui/ui_car)
     }
 
 
