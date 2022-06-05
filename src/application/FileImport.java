@@ -66,6 +66,8 @@ public class FileImport extends JPanel {
 
     public void handleFile(File file) {
         if (file == null) {
+            label.setText("No File Selected");
+            DataInterface.inputFile(null, type);
             return;
         }
         label.setText(file.getName());

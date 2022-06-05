@@ -23,7 +23,7 @@ public class DataTests {
 
     @Test
     public void testConfigs() {
-        assertDoesNotThrow(() -> DataInterface.generateConfigs("abarth500"));
+        assertDoesNotThrow(() -> DataInterface.loadDefaultFiles("abarth500"));
     }
 
     @Test

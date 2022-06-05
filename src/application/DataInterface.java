@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Data class, will handle reading and writing all data to and from files, as well as any modifications that are needed.
@@ -86,7 +87,7 @@ public class DataInterface {
      * @return A mapping of files and headers to {key, value, comment} triples
      * @throws IOException if the data folder for the specified car cannot be found
      */
-    public static Map<File, Map<String, ArrayList<String[]>>> generateConfigs(String car) throws IOException {
+    public static void loadDefaultFiles(String car) throws IOException {
         File assetto = getAssetto();
         //extract data.acd
         if (!(assetto = new File(assetto, "content\\cars\\" + car)).exists()) {
@@ -95,7 +96,6 @@ public class DataInterface {
         if (!(assetto = new File(assetto, "data")).exists()) {
             throw new FileNotFoundException("data folder not found at " + assetto.getAbsolutePath() + "\nmake sure you have extracted data.acd");
         }
-        Map<File, Map<String, ArrayList<String[]>>> configuration = new HashMap<>();
         for (File f : assetto.listFiles()) {
             FileInterface fileIO;
             switch (f.getName().split("\\.")[1]) {
@@ -109,48 +109,27 @@ public class DataInterface {
                     fileIO = new RTOFile();
                     break;
                 default:
-                    return null;
+                    //unsupported file type
+                    return;
             }
             fileIO.readFile(f);
             output.put(f.getName(), fileIO);
-
-            //just here for advanced mode
-            Scanner fileReader = new Scanner(f);
-            Map<String, ArrayList<String[]>> headers = new HashMap<>();
-            ArrayList<String[]> config = new ArrayList<>();
-            while (fileReader.hasNextLine()) {
-                String next = fileReader.nextLine();
-                if (next.startsWith("[") && next.endsWith("]")) {
-                    headers.put(next, (config = new ArrayList<>()));
-                    continue;
-                } else if (!next.contains("=")) {
-                    continue;
-                }
-                String comment;
-                String key;
-                String value;
-                if (next.contains(";")) {
-                    comment = next.split(";")[1].trim();
-                    key = next.split(";")[0].split("=")[0].trim();
-                    value = next.split(";")[0].split("=").length == 2 ? next.split(";")[0].split("=")[1].trim() : "";
-                } else {
-                    comment = "";
-                    key = next.split("=")[0].trim();
-                    value = next.split("=").length == 2 ? next.split("=")[1].trim() : "";
-                }
-                config.add(new String[]{key, value, comment});
-            }
-            configuration.put(f, headers);
         }
-        return configuration;
     }
 
     public static void inputFile(File file, Type type) {
-        inputFiles.put(type, file);
+        if (file == null) {
+            inputFiles.remove(type);
+        } else {
+            inputFiles.put(type, file);
+        }
     }
 
     public static void outputFiles(File outputFolder) {
-        Arrays.stream(Type.values()).forEach(t -> InputParser.parse(t, inputFiles.get(t)));
+        inputFiles.entrySet().forEach(t -> InputParser.parse(t.getKey(), t.getValue()));
+        if (outputFolder.exists()) {
+            System.err.println("output folder already exists");
+        }
         try {
             outputFolder.mkdir();
             //model

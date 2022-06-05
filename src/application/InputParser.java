@@ -22,6 +22,7 @@ public class InputParser {
             }
         } catch (Exception e) {
             //TODO handle exception
+            e.printStackTrace();
         }
     }
 

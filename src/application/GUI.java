@@ -28,9 +28,11 @@ public class GUI extends JFrame {
             }
         });
 
-        //create data interface
+        //data interface calls
         try {
             DataInterface.getAssetto();
+            //TODO don't hardcode
+            DataInterface.loadDefaultFiles("test_car");
         } catch (IOException e) {
             while (!chooseAssetto()) ;
         }
@@ -41,17 +43,11 @@ public class GUI extends JFrame {
             e.printStackTrace();
         }
 
-        try {
-            //TODO ask user for car, don't hardcode
-            advancedPanelSetup("test_car");
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        basicPanelSetup();
+            basicPanelSetup();
 
         //content layout
         JPanel layout = new JPanel(new BorderLayout());
-        layout.add(DataInterface.getConfigs().get("mode").equals("basic") ? basicPanel : advancedPanel, BorderLayout.CENTER);
+        layout.add(basicPanel, BorderLayout.CENTER);
 
         //add name field
         JTextField name = new JTextField();
@@ -124,38 +120,5 @@ public class GUI extends JFrame {
         basicPanel = basicContent;
     }
 
-    private static void advancedPanelSetup(String loadedCar) throws IOException {
-        //advanced window
-        JScrollPane scrollPane = new JScrollPane();
-        JPanel advancedContent = new JPanel();
-        scrollPane.getVerticalScrollBar().setUnitIncrement(10);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setViewportView(advancedContent);
-        advancedContent.setLayout(new BoxLayout(advancedContent, BoxLayout.PAGE_AXIS));
-        Map<File, Map<String, ArrayList<String[]>>> configs = null;
-        configs = DataInterface.generateConfigs(loadedCar);
-        for (Map.Entry<File, Map<String, ArrayList<String[]>>> item : configs.entrySet()) {
-            JPanel file = new JPanel();
-            file.setLayout(new BoxLayout(file, BoxLayout.PAGE_AXIS));
-            file.setBorder(BorderFactory.createTitledBorder(item.getKey().getName()));
-            for (Map.Entry<String, ArrayList<String[]>> section : item.getValue().entrySet()) {
-                JLabel l = new JLabel(section.getKey());
-                l.setAlignmentX(Component.LEFT_ALIGNMENT);
-                l.setFont(new Font(null, Font.PLAIN, 18));
-                file.add(l);
-                for (String[] value : section.getValue()) {
-                    JPanel textChooser = new JPanel();
-                    textChooser.setLayout(new GridLayout(0, 2));
-                    textChooser.add(new JLabel(value[0]));
-                    textChooser.add(new JTextField(value.length == 3 ? value[1] : ""));
-                    textChooser.setToolTipText(value[2]);
-                    textChooser.setAlignmentX(Component.LEFT_ALIGNMENT);
-                    file.add(textChooser);
-                }
-            }
-            advancedContent.add(file);
-        }
-        advancedPanel = scrollPane;
-    }
 
 }
