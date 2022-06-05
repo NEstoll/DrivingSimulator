@@ -31,14 +31,14 @@ public class GUI extends JFrame {
         //data interface calls
         try {
             DataInterface.getAssetto();
-            //TODO don't hardcode
-            DataInterface.loadDefaultFiles("test_car");
         } catch (IOException e) {
             while (!chooseAssetto()) ;
         }
 
         try {
             DataInterface.load();
+            //TODO don't hardcode
+            DataInterface.loadDefaultFiles("test_car");
         } catch (IOException e) {
             e.printStackTrace();
         }

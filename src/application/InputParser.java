@@ -40,7 +40,7 @@ public class InputParser {
 
             }
         }
-        ((INIFile)DataInterface.getOutput("engine.ini")).setValue("HEADER", "POWER_CURVE", "power.lut");
+        ((INIFile)DataInterface.getOutput("engine.ini")).setValue("[HEADER]", "POWER_CURVE", "power.lut");
     }
 
     private static void gears(File file) throws FileNotFoundException {
