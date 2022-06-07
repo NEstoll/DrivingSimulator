@@ -293,4 +293,35 @@ public class DataInterface {
             this.info = info;
         }
     }
+    public enum fileTypes {
+        csv, txt, pdf, jpeg, doc
+    }
+
+    public enum fileTypeToString {
+        csv {
+            public String toString() {
+                return "csv";
+            }
+        },
+        txt {
+            public String toString() {
+                return "txt";
+            }
+        },
+        pdf {
+            public String toString() {
+                return "pdf";
+            }
+        },
+        jpeg {
+            public String toString() {
+                return "jpeg";
+            }
+        },
+        doc {
+            public String toString() {
+                return "doc";
+            }
+        },
+    }
 }

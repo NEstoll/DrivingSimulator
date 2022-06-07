@@ -49,6 +49,8 @@ public class GUI extends JFrame {
         JPanel layout = new JPanel(new BorderLayout());
         layout.add(basicPanel, BorderLayout.CENTER);
 
+        //info button added to file import class
+
         //add name field
         JTextField name = new JTextField();
         layout.add(name, BorderLayout.PAGE_START);
