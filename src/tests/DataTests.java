@@ -18,8 +18,9 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class DataTests {
-    private File[] files = new File[] {new File("src\\data\\example\\aero.ini"), new File("src\\data\\config.txt"), new File("src\\data\\README.txt"), new File("src\\application\\GUI.java")};
+    private File[] files = new File[] {new File("src\\data\\example\\aero.ini"), new File("src\\data\\testData\\gears.txt"), new File("src\\data\\testData\\torqueCurve.txt"), new File("src\\application\\GUI.java")};
     private DataInterface.Type[] types = new DataInterface.Type[]{DataInterface.Type.AERO, DataInterface.Type.GEARS, DataInterface.Type.TORQUE, DataInterface.Type.SUSPENSION};
+    private String[] expected = new String[] {"power.lut", "engine.ini", "drivetrain.ini"};
     @BeforeAll
     public static void setup() {
     }
@@ -66,19 +67,11 @@ public class DataTests {
 
     @Test
     public void testFileOutput() {
-        Map<DataInterface.Type, File> expected = new HashMap<>();
-        for (int i = 0; i < files.length; i++) {
-            File f = files[i];
-            DataInterface.Type s = types[i];
-            DataInterface.inputFile(f, s);
-            expected.put(s, f);
-        }
+        testFileInput();
         File output = new File("src\\data\\output");
         assertDoesNotThrow(() -> DataInterface.generateDataFiles(output));
-
-        for (DataInterface.Type type: types) {
-            System.out.println(type);
-            assertTrue(new File(output,type + ".ini").exists());
+        for (String e: expected) {
+            assertTrue(new File(output,e).exists());
         }
     }
 

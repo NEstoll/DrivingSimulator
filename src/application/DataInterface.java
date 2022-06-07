@@ -198,13 +198,7 @@ public class DataInterface {
     }
 
     public static String formatString(Type t) {
-        switch (t) {
-            case SUSPENSION:
-                return "csv with connection vertices";
-            case TORQUE:
-                return "csv containing torque per RPM";
-        }
-        return null;
+        return t.info;
     }
 
     public static void loadConfig() throws IOException {
@@ -243,7 +237,7 @@ public class DataInterface {
         } else {
             prev = new File(configs.get("data-folder") + "\\prev.txt");
         }
-        Scanner in = null;
+        Scanner in;
         try {
             in = new Scanner(prev);
         } catch (FileNotFoundException e) {
@@ -288,7 +282,15 @@ public class DataInterface {
 
 
     public enum Type {
-        TORQUE, GEARS, AERO, SUSPENSION, NONE
+        TORQUE("csv with Torque per RPM"),
+        GEARS("Gear ratios, including number gears as well as reverse(R) and final"),
+        AERO(""),
+        SUSPENSION(""),
+        NONE("");
 
+        private String info;
+        Type(String info) {
+            this.info = info;
+        }
     }
 }

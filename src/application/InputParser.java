@@ -48,7 +48,6 @@ public class InputParser {
         int gearCount = 0;
         while (reader.hasNextLine()) {
             String[] next = reader.nextLine().split(",");
-
             try {
                 if (next.length != 2) {
                     continue;
