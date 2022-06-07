@@ -53,26 +53,12 @@ public class FileImport extends JPanel {
                 JFileChooser choose = new JFileChooser();
                 choose.setDialogTitle("Please select file");
                 choose.setCurrentDirectory(new File("."));
-//                choose.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-//                choose.setAcceptAllFileFilterUsed(false);
                 choose.setVisible(true);
                 choose.showOpenDialog(new JFrame());
                 handleFile(choose.getSelectedFile());
             }
         });
         this.add(fileOpen, buttonConstraints);
-
-        //moved the label to a tooltip -Nicholas
-
-//        // add info label
-//        GridBagConstraints infoLabelConstraints = new GridBagConstraints();
-//        infoLabelConstraints.gridx = 2;
-//        infoLabelConstraints.gridy = 0;
-//        infoLabelConstraints.gridwidth = 1;
-//        infoLabelConstraints.gridheight = 1;
-//        infoLabelConstraints.weightx = 0;
-//        infoLabelConstraints.fill = GridBagConstraints.HORIZONTAL;
-//        this.add(new JLabel("More Info"), infoLabelConstraints);
 
         // add info button
         GridBagConstraints infoIconConstraints = new GridBagConstraints();
@@ -84,12 +70,12 @@ public class FileImport extends JPanel {
         infoIconConstraints.fill = GridBagConstraints.HORIZONTAL;
 
         ImageIcon icon = new ImageIcon("icon.png");
-        icon.setImage(icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH));
+        icon.setImage(icon.getImage().getScaledInstance(16, 16 , Image.SCALE_SMOOTH));
         JButton iconButton = new JButton(icon);
         iconButton.setToolTipText("Click for more Info");
         this.add(iconButton, infoIconConstraints);
 
-        iconButton.addActionListener(e -> JOptionPane.showMessageDialog(iconButton, "Message"));
+        iconButton.addActionListener(e -> JOptionPane.showMessageDialog(iconButton, DataInterface.formatString(type)));
 
         this.setBorder(BorderFactory.createTitledBorder(text));
     }
