@@ -27,7 +27,7 @@ public class DataTests {
 
     @Test
     public void testConfigs() {
-        assertDoesNotThrow(() -> DataInterface.loadDefaultFiles("abarth500"));
+        assertDoesNotThrow(() -> DataInterface.loadDefaultFiles(new File("abarth500")));
     }
 
     @Test

@@ -32,9 +32,14 @@ public class FileImport extends JPanel {
         labelConstraints.gridheight = 3;
         labelConstraints.weightx = 1.0;
         labelConstraints.fill = GridBagConstraints.HORIZONTAL;
-        File old = type!=DataInterface.Type.NONE?DataInterface.getInputFiles().get(type):null;
-        label = new JLabel(old!=null?old.getName():"No file selected");
+        label = new JLabel("No file selected");
         this.add(label, labelConstraints);
+        DataInterface.addfileListener(type, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                label.setText(DataInterface.getInputFiles().get(type).getName());
+            }
+        });
 
         // Put button on the right
         GridBagConstraints buttonConstraints = new GridBagConstraints();
@@ -54,7 +59,7 @@ public class FileImport extends JPanel {
                 choose.setDialogTitle("Please select file");
                 choose.setCurrentDirectory(new File("."));
                 choose.setVisible(true);
-                choose.showOpenDialog(new JFrame());
+                choose.showOpenDialog(null);
                 handleFile(choose.getSelectedFile());
             }
         });
@@ -92,5 +97,9 @@ public class FileImport extends JPanel {
 
     public JLabel getLabel() {
         return label;
+    }
+
+    public DataInterface.Type getType() {
+        return type;
     }
 }

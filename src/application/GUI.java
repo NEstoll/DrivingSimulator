@@ -16,6 +16,7 @@ import java.util.Map;
 public class GUI extends JFrame {
     private static Component advancedPanel;
     private static Component basicPanel;
+    public static JTextField name;
 
     public static void main(String[] args) {
         //create frame
@@ -29,21 +30,17 @@ public class GUI extends JFrame {
         });
 
         //data interface calls
-        try {
-            DataInterface.getAssetto();
-        } catch (IOException e) {
+        if (DataInterface.getAssetto() == null) {
             while (!chooseAssetto()) ;
         }
 
         try {
             DataInterface.load();
-            //TODO don't hardcode
-            DataInterface.loadDefaultFiles("test_car");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-            basicPanelSetup();
+        basicPanelSetup();
 
         //content layout
         JPanel layout = new JPanel(new BorderLayout());
@@ -52,23 +49,40 @@ public class GUI extends JFrame {
         //info button added to file import class
 
         //add name field
-        JTextField name = new JTextField();
-        layout.add(name, BorderLayout.PAGE_START);
+        JPanel header = new JPanel();
+        header.setLayout(new BoxLayout(header, BoxLayout.LINE_AXIS));
+        header.add(new JLabel("Name:"));
+        name = new JTextField();
+        header.add(name);
+        JButton load = new JButton("Load");
+        load.addActionListener((e) -> {
+            JFileChooser choose = new JFileChooser();
+            choose.setDialogTitle("Please select folder containing car");
+            choose.setCurrentDirectory(DataInterface.getAssetto());
+            choose.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            choose.setAcceptAllFileFilterUsed(false);
+            choose.setVisible(true);
+            choose.showOpenDialog(null);
+            try {
+                DataInterface.loadDefaultFiles(choose.getSelectedFile());
+            } catch (IOException io) {
+                io.printStackTrace();
+            }
+        });
+
+        header.add(load);
+
+        layout.add(header, BorderLayout.PAGE_START);
 
         //add "Submit" button
         JButton build =  new JButton("Build");
         build.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    if (!name.getText().equals("")) {
-                        DataInterface.setName(name.getText());
-                        DataInterface.outputFiles(new File(DataInterface.getAssetto(), "content\\cars\\" + name.getText()));
-                        frame.close();
-                    }
-                } catch (IOException ioException) {
-                    System.err.println(ioException.getMessage());
-                    ioException.printStackTrace();
+                if (!name.getText().equals("")) {
+                    DataInterface.setName(name.getText());
+                    DataInterface.outputFiles(new File(DataInterface.getAssetto(), "content\\cars\\" + name.getText()));
+                    frame.close();
                 }
             }
         });

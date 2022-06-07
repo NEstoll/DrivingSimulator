@@ -1,5 +1,7 @@
 package application;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.io.*;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
@@ -15,6 +17,8 @@ public class DataInterface {
     private static File assettoFolder;
     private static Map<String, String> configs = new HashMap<>();
     private static Map<String, FileInterface> output = new HashMap<>();
+    private static String name;
+    private static Map<Type, Action> fileListeners = new HashMap<>();
 
     public static Map<Type, File> getInputFiles() {
         return inputFiles;
@@ -64,14 +68,17 @@ public class DataInterface {
     }
 
     /**
-     * @return the folder containing Assetto Corsa
-     * @throws IOException if Assetto Corsa can't be found
+     * @return the folder containing Assetto Corsa or null if it can't be found
      */
-    public static File getAssetto() throws IOException {
+    public static File getAssetto() {
         if (assettoFolder != null) {
             return assettoFolder;
         } else {
-            return findAssetto();
+            try {
+                return findAssetto();
+            } catch (IOException e) {
+                return null;
+            }
         }
     }
 
@@ -85,19 +92,30 @@ public class DataInterface {
 
     /**
      * @param car the name of the folder containing the configuration files to load
-     * @return A mapping of files and headers to {key, value, comment} triples
      * @throws IOException if the data folder for the specified car cannot be found
      */
-    public static void loadDefaultFiles(String car) throws IOException {
-        File assetto = getAssetto();
-        //extract data.acd
-        if (!(assetto = new File(assetto, "content\\cars\\" + car)).exists()) {
-            throw new FileNotFoundException("car not found at " + assetto.getAbsolutePath());
+    public static void loadDefaultFiles(File car) throws IOException {
+        if (new File(car, "data").exists() && new File(car, "data").isDirectory()) {
+            car = new File(car, "data");
+        } else if (new File(getAssetto(), "content\\cars\\" + car.getName() + "\\data").exists()) {
+            car = new File(getAssetto(), "content\\cars\\" + car.getName() + "\\data");
+        } else if (new File(getAssetto(), "content\\cars\\" + car.getName()).exists()) {
+            throw new FileNotFoundException("data folder not found at " + getAssetto().getAbsolutePath() + "\nmake sure you have extracted data.acd");
         }
-        if (!(assetto = new File(assetto, "data")).exists()) {
-            throw new FileNotFoundException("data folder not found at " + assetto.getAbsolutePath() + "\nmake sure you have extracted data.acd");
+        if (new File(car.getParent(), "ui\\ui_car.json").exists()) {
+            Scanner input = new Scanner(new File(car.getParent(), "ui\\ui_car.json"));
+            while (input.hasNext()) {
+                String next = input.nextLine();
+                if (next.trim().startsWith("\"name\"")) {
+                    setName(next.split("\"")[3]);
+                    break;
+                }
+            }
         }
-        for (File f : assetto.listFiles()) {
+        if (new File(car.getParent(), "files.txt").exists() && new File(car.getParent(), "config.txt").exists()) {
+            load(new File(car.getParent(), "files.txt"));
+        }
+        for (File f : car.listFiles()) {
             FileInterface fileIO;
             switch (f.getName().split("\\.")[1]) {
                 case "ini":
@@ -131,10 +149,15 @@ public class DataInterface {
             outputFolder.mkdir();
             //model
             outputModel("test_car", outputFolder);
+            //name
+            outputName(name);
             //data
             File dataFolder = new File(outputFolder, "data");
             dataFolder.mkdir();
             generateDataFiles(dataFolder);
+            //configs
+            Files.copy(new File(configs.get("data-folder") + "\\config.txt").toPath(), new File(outputFolder, "config.txt").toPath(), StandardCopyOption.REPLACE_EXISTING);
+            save(new File(outputFolder, "files.txt"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -186,8 +209,8 @@ public class DataInterface {
 
     private static void copy(File from, File to) throws IOException {
         if (from.isDirectory()) {
-            if (!from.exists()) {
-                from.mkdir();
+            if (!to.exists()) {
+                to.mkdir();
             }
             for (File f: from.listFiles()) {
                 copy(f, new File(to, f.getName()));
@@ -215,6 +238,11 @@ public class DataInterface {
             //default configs
             configs.put("data-folder", "data");
         }
+        loadConfig(config);
+    }
+
+    private static void loadConfig(File config) throws FileNotFoundException {
+        configs.put("data-folder", config.getParent());
         Scanner in = new Scanner(config);
         while (in.hasNextLine()) {
             String next = in.nextLine();
@@ -237,6 +265,15 @@ public class DataInterface {
         } else {
             prev = new File(configs.get("data-folder") + "\\prev.txt");
         }
+        load(prev);
+    }
+
+    public static void addfileListener(Type t, Action a) {
+        fileListeners.put(t, a);
+    }
+
+    private static void load(File prev) throws FileNotFoundException {
+        loadConfig(new File(prev.getParentFile(), "config.txt"));
         Scanner in;
         try {
             in = new Scanner(prev);
@@ -246,7 +283,12 @@ public class DataInterface {
         while (in.hasNextLine()) {
             String next = in.nextLine();
             try {
-                inputFiles.put(Type.valueOf(next.split("=")[0]), new File(next.split("=")[1]));
+                Type t = Type.valueOf(next.split("=")[0]);
+                File f = new File(next.split("=")[1]);
+                inputFiles.put(t, f);
+                if (fileListeners.containsKey(t)) {
+                    fileListeners.get(t).actionPerformed(null);
+                }
             } catch (IllegalArgumentException e) {
                 continue;
             }
@@ -260,6 +302,10 @@ public class DataInterface {
         } else {
             prev = new File(configs.get("data-folder") + "\\prev.txt");
         }
+        save(prev);
+    }
+
+    private static void save(File prev) {
         try {
             prev.createNewFile();
             PrintStream out = new PrintStream(prev);
@@ -277,7 +323,17 @@ public class DataInterface {
     }
 
     public static void setName(String text) {
-        //set the screen name of the car (it's in ui/ui_car)
+        name = text;
+        GUI.name.setText(DataInterface.getName());
+        GUI.name.validate();
+    }
+
+    public static void outputName(String text) {
+        //in ui/ui_car
+    }
+
+    public static String getName() {
+        return name;
     }
 
 
@@ -292,36 +348,5 @@ public class DataInterface {
         Type(String info) {
             this.info = info;
         }
-    }
-    public enum fileTypes {
-        csv, txt, pdf, jpeg, doc
-    }
-
-    public enum fileTypeToString {
-        csv {
-            public String toString() {
-                return "csv";
-            }
-        },
-        txt {
-            public String toString() {
-                return "txt";
-            }
-        },
-        pdf {
-            public String toString() {
-                return "pdf";
-            }
-        },
-        jpeg {
-            public String toString() {
-                return "jpeg";
-            }
-        },
-        doc {
-            public String toString() {
-                return "doc";
-            }
-        },
     }
 }
