@@ -6,13 +6,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import application.FileImport;
 import application.GUI;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.function.Executable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class DataTests {
     private File[] files = new File[] {new File("src\\data\\example\\aero.ini"), new File("src\\data\\config.txt"), new File("src\\data\\README.txt"), new File("src\\application\\GUI.java")};
@@ -36,6 +39,29 @@ public class DataTests {
             expected.put(s, f);
         }
         assertIterableEquals(DataInterface.getInputFiles().entrySet(), expected.entrySet());
+    }
+
+    @Test
+    public void testPowerTrain() {
+        File inputFile;
+        DataInterface.inputFile((inputFile = new File("src\\data\\testData\\torqueCurve.txt")), DataInterface.Type.TORQUE);
+        assertTrue(inputFile.exists());
+        assertDoesNotThrow(() -> DataInterface.generateDataFiles(new File("src\\data\\output")));
+        File f;
+        assertTrue((f =new File("src\\data\\output\\power.lut")).exists());
+        final Scanner[] input = new Scanner[1];
+        assertDoesNotThrow(() -> {input[0] = new Scanner(inputFile);});
+        final Scanner[] out = new Scanner[1];
+        assertDoesNotThrow(() -> {out[0] = new Scanner(f);});
+        while (input[0].hasNextLine()) {
+            assertTrue(out[0].hasNextLine());
+            String next = input[0].nextLine();
+            if (!next.matches("(([0-9](.[0-9]+)?)+,)*([0-9](.[0-9]+)?)+")) {
+                continue;
+            }
+            String next2 = out[0].nextLine();
+            Arrays.stream(next.split(",")).forEach((s) -> assertTrue(next2.contains(s)));
+        }
     }
 
     @Test

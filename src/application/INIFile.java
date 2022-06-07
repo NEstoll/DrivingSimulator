@@ -19,6 +19,9 @@ public class INIFile extends FileInterface {
     }
 
     public void setValue(String header, String key, String value) {
+        if (!sections.containsKey(header)) {
+            sections.put(header, new HashMap<>());
+        }
         sections.get(header).put(key, value);
     }
 

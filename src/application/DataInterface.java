@@ -3,6 +3,7 @@ package application;
 import java.io.*;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -126,10 +127,6 @@ public class DataInterface {
     }
 
     public static void outputFiles(File outputFolder) {
-        inputFiles.entrySet().forEach(t -> InputParser.parse(t.getKey(), t.getValue()));
-        if (outputFolder.exists()) {
-            System.err.println("output folder already exists");
-        }
         try {
             outputFolder.mkdir();
             //model
@@ -144,10 +141,30 @@ public class DataInterface {
     }
 
     public static FileInterface getOutput(String f) {
-        return output.get(f);
+        if (output.containsKey(f)) {
+            return output.get(f);
+        }
+        FileInterface add;
+        switch (f.split("\\.")[1]) {
+            case "ini":
+                add = new INIFile();
+                break;
+            case "lut":
+                add = new LUTFile();
+                break;
+            case "rto":
+                add = new RTOFile();
+                break;
+            default:
+                //unsupported file type
+                return null;
+        }
+        output.put(f, add);
+        return add;
     }
 
     public static void generateDataFiles(File folder) throws IOException {
+        inputFiles.forEach(InputParser::parse);
         for (Map.Entry<String, FileInterface> e: output.entrySet()) {
             File output = new File(folder, e.getKey());
             output.createNewFile();
@@ -168,11 +185,15 @@ public class DataInterface {
     }
 
     private static void copy(File from, File to) throws IOException {
-        Files.copy(from.toPath(), to.toPath());
         if (from.isDirectory()) {
+            if (!from.exists()) {
+                from.mkdir();
+            }
             for (File f: from.listFiles()) {
                 copy(f, new File(to, f.getName()));
             }
+        } else {
+            Files.copy(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
