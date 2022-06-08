@@ -94,6 +94,13 @@ public class GUI extends JFrame {
         frame.setVisible(true);
     }
 
+    public static void setNameText(String text) {
+        if (name != null) {
+            name.setText(text);
+            name.validate();
+        }
+    }
+
     public void close() {
         DataInterface.save();
         this.dispose();

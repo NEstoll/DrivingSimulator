@@ -324,8 +324,7 @@ public class DataInterface {
 
     public static void setName(String text) {
         name = text;
-        GUI.name.setText(DataInterface.getName());
-        GUI.name.validate();
+        GUI.setNameText(DataInterface.getName());
     }
 
     public static void outputName(String text) {

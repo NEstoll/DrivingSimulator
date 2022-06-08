@@ -14,10 +14,6 @@ public class INIFile extends FileInterface {
         sections = new HashMap<>();
     }
 
-    public INIFile(Map<String, Map<String, String>> sections) {
-        this.sections = sections;
-    }
-
     public void setValue(String header, String key, String value) {
         if (!sections.containsKey(header)) {
             sections.put(header, new HashMap<>());

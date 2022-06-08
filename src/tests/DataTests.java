@@ -39,7 +39,10 @@ public class DataTests {
             DataInterface.inputFile(f, s);
             expected.put(s, f);
         }
-        assertIterableEquals(DataInterface.getInputFiles().entrySet(), expected.entrySet());
+        for (Map.Entry<DataInterface.Type, File> e: expected.entrySet()) {
+            assertTrue(DataInterface.getInputFiles().containsKey(e.getKey()));
+            assertEquals(e.getValue(), DataInterface.getInputFiles().get(e.getKey()));
+        }
     }
 
     @Test
@@ -78,14 +81,12 @@ public class DataTests {
     @Test
     public void testReopenLast() {
         //open UI, add file, close UI, reopen UI and verify change persists
-        GUI.main(null);
-        JFrame f = (JFrame) GUI.getFrames()[0];
-        f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        findFileImport((JPanel) f.getContentPane()).handleFile(new File("src\\data\\config.txt"));
-        f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
-        GUI.main(null);
-        f = (JFrame) GUI.getFrames()[1];
-        assertEquals("config.txt", findFileImport((JPanel) f.getContentPane()).getLabel().getText());
+        assertDoesNotThrow(DataInterface::load);
+        File expected = new File("src\\data\\README.txt");
+        DataInterface.inputFile(expected, DataInterface.Type.NONE);
+        DataInterface.save();
+        assertDoesNotThrow(DataInterface::load);
+        assertEquals(expected, DataInterface.getInputFiles().get(DataInterface.Type.NONE));
     }
 
     public FileImport findFileImport(JPanel p) {
