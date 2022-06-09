@@ -103,7 +103,7 @@ public class TabMenu extends JPanel {
 		//Create and set up the window.
 		JFrame frame = new JFrame("Mines Formula SAE");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setPreferredSize(new Dimension(600,600));
+//		frame.setPreferredSize(new Dimension(600,600));
 
 		//Add content to the window.
 		frame.add(new TabMenu(), BorderLayout.CENTER);

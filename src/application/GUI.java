@@ -44,7 +44,7 @@ public class GUI extends JFrame {
 
         //content layout
         JPanel layout = new JPanel(new BorderLayout());
-        layout.add(basicPanel, BorderLayout.CENTER);
+        layout.add(new TabMenu(), BorderLayout.CENTER);
 
         //info button added to file import class
 
