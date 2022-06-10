@@ -179,6 +179,7 @@ public class InputParser {
 
     private static void torque(File file) throws FileNotFoundException {
         Scanner reader = new Scanner(file);
+        ((LUTFile)DataInterface.getOutput("power.lut")).clear();
         while (reader.hasNextLine()) {
             String[] next = reader.nextLine().split(",");
 

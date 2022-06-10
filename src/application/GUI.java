@@ -16,10 +16,12 @@ import java.util.Map;
 public class GUI extends JFrame {
     private static Component advancedPanel;
     public static JTextField name;
+    public static GUI gui;
 
     public static void main(String[] args) {
         //create frame
         GUI frame = new GUI();
+        GUI.gui = frame;
         frame.setTitle("Mines Formula SAE");
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
@@ -48,6 +50,7 @@ public class GUI extends JFrame {
 
         //add content, make visible
         frame.setContentPane(layout);
+        frame.pack();
         frame.pack();
         frame.setVisible(true);
     }

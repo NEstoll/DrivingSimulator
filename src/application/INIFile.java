@@ -21,6 +21,10 @@ public class INIFile extends FileInterface {
         sections.get(header).put(key, value);
     }
 
+    public Map<String, Map<String, String>> getValues() {
+        return sections;
+    }
+
     public void writeFile(PrintStream out) {
         for (Map.Entry<String, Map<String, String>> e: sections.entrySet()) {
             out.println(e.getKey());

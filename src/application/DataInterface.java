@@ -299,6 +299,7 @@ public class DataInterface {
      */
     public static void load() throws IOException {
         loadConfig();
+        loadDefaultFiles(new File(configs.get("data-folder") + "\\default"));
         File prev;
         if (configs.containsKey("prev-location")) {
             prev = new File(configs.get("prev-location"));

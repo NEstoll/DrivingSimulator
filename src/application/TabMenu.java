@@ -1,21 +1,12 @@
 package application;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 
 public class TabMenu extends JPanel {
@@ -48,6 +39,7 @@ public class TabMenu extends JPanel {
 		JComponent ptPanel = makepowertrainPanel();
 		JComponent suspensionPanel = makeSuspensionPanel();
 		JComponent aeroPanel = makeAeroPanel();
+		aeroPanel.setPreferredSize(new Dimension(aeroPanel.getPreferredSize().width, Math.max(configPanel.getPreferredSize().height, Math.max(ptPanel.getPreferredSize().height, suspensionPanel.getPreferredSize().height))));
 	
 		// Add corresponding components to tabs
 		tabbedPane.addTab("Configuration", configPanel);
@@ -57,6 +49,7 @@ public class TabMenu extends JPanel {
 
 		//Add the tabbed pane to this panel.
 		add(tabbedPane);
+
 
 		//The following line enables to use scrolling tabs.
 		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -94,6 +87,7 @@ public class TabMenu extends JPanel {
 				if (!name.getText().equals("")) {
 					DataInterface.setName(name.getText());
 					DataInterface.outputFiles(new File(DataInterface.getAssetto(), "content\\cars\\" + name.getText()));
+					GUI.gui.close();
 				}
 			}
 		});
@@ -122,10 +116,55 @@ public class TabMenu extends JPanel {
 
 	// 
 	private JComponent makeAeroPanel() {
-		JPanel panelA = new JPanel();
-		panelA.add(new JLabel("Aero will not be done with this project!"));
+		JPanel aeroPanel = new JPanel();
+		aeroPanel.setLayout(new BoxLayout(aeroPanel, BoxLayout.PAGE_AXIS));
+
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.getVerticalScrollBar().setUnitIncrement(10);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setViewportView(aeroPanel);
+
+		//advanced panel stuff
+		String[] files = new String[] {"aero.ini", "wing_body_AOA_CL.lut", "wing_body_AOA_CD.lut", "wing_front_AOA_CL.lut", "height_frontwing_CL.lut", "wing_front_AOA_CD.lut", "height_frontwing_CD.lut", "wing_rear_AOA_CL.lut", "wing_rear_AOA_CD.lut"};
+		for (String s: files) {
+			FileInterface f = DataInterface.getOutput(s);
+			JPanel file = new JPanel();
+			file.setLayout(new BoxLayout(file, BoxLayout.PAGE_AXIS));
+			file.setBorder(BorderFactory.createTitledBorder(s));
+			if (f instanceof INIFile) {
+				Map<String, Map<String, String>> m = ((INIFile) f).getValues();
+				for (String section: m.keySet()) {
+					JPanel sectionPanel = new JPanel();
+					sectionPanel.setLayout(new BoxLayout(sectionPanel, BoxLayout.PAGE_AXIS));
+					sectionPanel.setBorder(BorderFactory.createTitledBorder(section));
+					for (Map.Entry<String, String> e: m.get(section).entrySet()) {
+							JPanel line = new JPanel();
+							line.setLayout(new GridLayout(0, 2));
+							line.add(new JLabel(e.getKey()));
+							JTextField value = new JTextField(e.getValue());
+							value.addActionListener(i -> ((INIFile) f).setValue(section, e.getKey(), value.getText()));
+							line.add(value);
+							line.setAlignmentX(Component.LEFT_ALIGNMENT);
+							sectionPanel.add(line);
+					}
+					file.add(sectionPanel);
+				}
+			} else if (f instanceof LUTFile) {
+				for (Pair<String, String> item: ((LUTFile) f).getInputData()) {
+						JPanel line = new JPanel();
+						line.setLayout(new GridLayout(0, 2));
+						line.add(new JLabel(item.getKey()));
+						JTextField value = new JTextField(item.getValue());
+						value.addActionListener(e -> ((LUTFile) f).addValue(item.getKey(), value.getText()));
+						line.add(value);
+						line.setAlignmentX(Component.LEFT_ALIGNMENT);
+					file.add(line);
+				}
+			}
+			aeroPanel.add(file);
+		}
 		
-		return panelA;
+		return scrollPane;
 	} 
 	public static void main(String[] args) {
 		//Create and set up the window.

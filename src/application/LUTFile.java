@@ -18,11 +18,20 @@ public class LUTFile extends FileInterface{
 
     @Override
     public void writeFile(PrintStream out) {
-        for (int i = 0; i < lutData.size(); i++) {
-            Pair<String, String> pair = lutData.get(i);
-            out.println(pair.key + "|" + pair.value);
-            // TODO compress lut table when adjacent entries are linear if needed
+        if (lutData.size() > 0) {
+            for (int i = 0; i < lutData.size(); i++) {
+                Pair<String, String> pair = lutData.get(i);
+                out.println(pair.key + "|" + pair.value);
+            }
         }
+    }
+
+    public ArrayList<Pair<String, String>> getInputData() {
+        return lutData;
+    }
+
+    public void clear() {
+        lutData.clear();
     }
 
     // Assumes sorted input data, maintains a sort on lutData for future output
@@ -47,19 +56,19 @@ public class LUTFile extends FileInterface{
 
     @Override
     public void readFile(File in) throws FileNotFoundException {
+        Scanner fileReader = new Scanner(in);
+        while (fileReader.hasNextLine()) {
+            String next = fileReader.nextLine();
+            if (next.isEmpty()) {
+                continue;
+            }
+            //TODO add values to data structure
+            String[] rpmTorque = next.split("\\|");
+            if (rpmTorque.length != 2) {
+                throw new NumberFormatException();
+            }
+            lutData.add(new Pair<>(rpmTorque[0], rpmTorque[1]));
+        }
         return;
-//        Scanner fileReader = new Scanner(in);
-//        while (fileReader.hasNextLine()) {
-//            String next = fileReader.nextLine();
-//            if (next.isEmpty()) {
-//                continue;
-//            }
-//            //TODO add values to data structure
-//            String[] rpmTorque = next.split("\\|");
-//            if (rpmTorque.length != 2) {
-//                throw new NumberFormatException();
-//            }
-//            lutData.add(new Pair<Double,Double>(Double.parseDouble(rpmTorque[0]), Double.parseDouble(rpmTorque[1])));
-//        }
     }
 }
