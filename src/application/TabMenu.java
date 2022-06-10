@@ -95,6 +95,7 @@ public class TabMenu extends JPanel {
 		return panelP;
 	}
 	
+	// Puts info on Suspension Panel
 	private JComponent makeSuspensionPanel() {
 		JPanel panelS = new JPanel();
 		panelS.setLayout(new BoxLayout(panelS, BoxLayout.PAGE_AXIS));
@@ -104,6 +105,7 @@ public class TabMenu extends JPanel {
 		return panelS;
 	}  
 
+	// 
 	private JComponent makeAeroPanel() {
 		JPanel panelA = new JPanel();
 		panelA.add(new JLabel("Aero will not be done with this project!"));
