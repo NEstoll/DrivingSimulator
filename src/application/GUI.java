@@ -30,6 +30,11 @@ public class GUI extends JFrame {
                 frame.close();
             }
         });
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch
+        (Exception g) {
+        }
 
 
         //data interface calls
@@ -72,11 +77,6 @@ public class GUI extends JFrame {
     // Find Assetto on the computer by asking user if not found
     private static boolean chooseAssetto() { //prompt user for assetto location
         JFileChooser chooser = new JFileChooser();
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch
-        (Exception g) {
-        }
         chooser.setDialogTitle("Please select assettocorsa folder");
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setAcceptAllFileFilterUsed(false);

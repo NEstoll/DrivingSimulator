@@ -27,7 +27,7 @@ public class DataTests {
 
     @Test
     public void testConfigs() {
-        assertDoesNotThrow(() -> DataInterface.loadDefaultFiles(new File("abarth500")));
+        assertDoesNotThrow(() -> DataInterface.loadDefaultFiles(new File("test_car")));
         return;
     }
 
@@ -48,6 +48,7 @@ public class DataTests {
 
     @Test
     public void testPowerTrain() {
+        DataInterface.getInputFiles().clear();
         File inputFile;
         DataInterface.inputFile((inputFile = new File("src\\data\\testData\\torqueCurve.txt")), DataInterface.Type.TORQUE);
         assertTrue(inputFile.exists());

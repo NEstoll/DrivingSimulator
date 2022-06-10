@@ -162,7 +162,6 @@ public class DataInterface {
             outputName(name);
             //data
             File dataFolder = new File(outputFolder, "data");
-            dataFolder.mkdir();
             generateDataFiles(dataFolder);
             //configs
             Files.copy(new File(configs.get("data-folder") + "\\config.txt").toPath(), new File(outputFolder, "config.txt").toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -207,6 +206,7 @@ public class DataInterface {
      */
     public static void generateDataFiles(File folder) throws IOException {
         inputFiles.forEach(InputParser::parse);
+        folder.mkdir();
         for (Map.Entry<String, FileInterface> e : output.entrySet()) {
             File output = new File(folder, e.getKey());
             output.createNewFile();
