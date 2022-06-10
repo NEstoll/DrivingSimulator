@@ -387,7 +387,8 @@ public class DataInterface {
         // can add other enum types that are relevant to Aero
         AERO(""),
         // Suspension
-        SUSPENSION(""),
+        SUSPENSION("csv with Rear, Front or Total Car in any order"),
+
         NONE("");
 
         private String info;

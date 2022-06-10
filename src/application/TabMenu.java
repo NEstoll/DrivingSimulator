@@ -119,7 +119,7 @@ public class TabMenu extends JPanel {
 		panelS.setLayout(new BoxLayout(panelS, BoxLayout.PAGE_AXIS));
 		panelS.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
 		panelS.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
-		panelS.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
+		panelS.add(new FileImport("SUspension data", DataInterface.Type.SUSPENSION));
 		return panelS;
 	}  
 
