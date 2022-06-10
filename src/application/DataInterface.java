@@ -380,9 +380,12 @@ public class DataInterface {
 
 
     public enum Type {
+    	// Power train
         TORQUE("csv with Torque per RPM"),
         GEARS("Gear ratios, including number gears as well as reverse(R) and final"),
+        // Aero - Not done on this project but info message would be added in quotations, can add other enum types that are relevant to Aero
         AERO(""),
+        // Suspension
         SUSPENSION(""),
         NONE("");
 

@@ -51,10 +51,14 @@ public class TabMenu extends JPanel {
    
 	private JComponent makeConfigPanel() {
 		JPanel header = new JPanel();
-		header.setLayout(new BoxLayout(header, BoxLayout.LINE_AXIS));
+		header.setLayout(new BoxLayout(header, BoxLayout.PAGE_AXIS));
 		header.add(new JLabel("Name:"));
 		name = new JTextField();
 		header.add(name);
+		header.add(new JLabel("Build:"));
+		build = new JTextField();
+		header.add(build);
+		
 		JButton load = new JButton("Load");
 		load.addActionListener((e) -> {
 			JFileChooser choose = new JFileChooser();
