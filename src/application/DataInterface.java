@@ -382,13 +382,13 @@ public class DataInterface {
 
     public enum Type {
     	// Power Train
-        TORQUE("csv with Torque per RPM"),
-        GEARS("Gear ratios, including number gears as well as reverse(R) and final"),
+        TORQUE("2-Column CSV with RPM in first column, Torque (Nm) in second column."),
+        GEARS("2-Column CSV with Gear number (numerical/R/Final) with the number in first column, ratio in the second column."),
         // Aero - Not done on this project but info message would be added in quotations, 
         // can add other enum types that are relevant to Aero
         AERO(""),
         // Suspension
-        SUSPENSION("csv with Rear, Front or Total Car in any order"),
+        SUSPENSION("Take the Optima Suspension excel document and convert each page (Vehicle Setup/Front/Rear) to .csv files. Upload all three .csv files in any order."),
 
         NONE("");
 
