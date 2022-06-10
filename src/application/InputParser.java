@@ -48,6 +48,10 @@ class Coordinate {
         this.z *= inchToMeterConst;
     }
 
+    static double asMeters(double inches) {
+        return inches *= 0.0254;
+    }
+
     void recenter(Coordinate newZero) {
         x = x - newZero.x;
         y = y - newZero.y;
@@ -64,12 +68,13 @@ class Coordinate {
     }
 
     String as_string() {
-        return String.valueOf(x) + ", " + String.valueOf(y) + ", " + String.valueOf(z);
+        return String.valueOf(x) + "," + String.valueOf(y) + "," + String.valueOf(z);
     }
 }
 class SuspensionData {
 
     private static SuspensionData instance = null;
+    public double cgFrontRearDistribution;
 
     private SuspensionData() {
         referenceDistance = -1.0;
@@ -260,6 +265,8 @@ public class InputParser {
         if (value.equals("Vehicle Setup")) {
             suspensionData.referenceDistance = Double.parseDouble(findRowEntryByKey("Reference Distance", file));
 
+            suspensionData.cgFrontRearDistribution = Double.parseDouble(findRowEntryByKey("Front Mass Distribution", file)) / 100.0;
+
             // Debug:
             System.out.println("Got setup suspension data");
         } else if (value.equals("Suspension")) {
@@ -327,21 +334,59 @@ public class InputParser {
             // Reorient geometry data
             for (String key : suspensionData.frontGeometry.data.keySet()) {
                 suspensionData.frontGeometry.data.get(key).applyAxisSwap();
+                // Output to ini
+                ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[FRONT]", Geometry.csvToIniStrings.get(key).toUpperCase(), suspensionData.frontGeometry.data.get(key).as_string());
             }
             for (String key : suspensionData.rearGeometry.data.keySet()) {
                 suspensionData.rearGeometry.data.get(key).applyAxisSwap();
+                // Output to ini
+                ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[REAR]", Geometry.csvToIniStrings.get(key).toUpperCase(), suspensionData.rearGeometry.data.get(key).as_string());
             }
+
+            // Additional ini outputs:
+            // [HEADER]
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[HEADER]", "VERSION", "4");
+
+            // [_EXTENSION]
+            // TORQUE_MODE_EX
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[_EXTENSION]", "TORQUE_MODE_EX", "2");
+            // FIX_PROGRESSIVE_RATE
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[_EXTENSION]", "FIX_PROGRESSIVE_RATE", "1");
+            // USE_DWB2
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[_EXTENSION]", "USE_DWB2", "1");
+
+            // [BASIC]
+            // WHEELBASE
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[BASIC]", "WHEELBASE", String.valueOf(Coordinate.asMeters(suspensionData.derivedWheelBase)));
+            // CG_LOCATION
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[BASIC]", "CG_LOCATION", String.valueOf(suspensionData.cgFrontRearDistribution));
+
+            // [FRONT]
+            // TYPE
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[FRONT]", "TYPE", "DWB");
+            // TRACK
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[FRONT]", "TRACK", String.valueOf(suspensionData.frontWheelCenter.y * 2));
+            // STATIC_CAMBER
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[FRONT]", "STATIC_CAMBER", String.valueOf(suspensionData.frontStaticCamber));
+
+            // [REAR]
+            // TYPE
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[REAR]", "TYPE", "DWB");
+            // TRACK
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[REAR]", "TRACK", String.valueOf(suspensionData.rearWheelCenter.y * 2));
+            // STATIC_CAMBER
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[REAR]", "STATIC_CAMBER", String.valueOf(suspensionData.rearStaticCamber));
 
             // Debug:
             System.out.println("Derived front wheel position: " + suspensionData.frontWheelCenter.as_string());
             System.out.println("Derived rear wheel position: " + suspensionData.rearWheelCenter.as_string());
             System.out.println("Front Geometry:");
             for (String key : suspensionData.frontGeometry.data.keySet()) {
-                System.out.println(key + ": " + suspensionData.frontGeometry.data.get(key).as_string());
+                System.out.println(key + "/ " + Geometry.csvToIniStrings.get(key) + ": " + suspensionData.frontGeometry.data.get(key).as_string());
             }
             System.out.println("Rear Geometry:");
             for (String key : suspensionData.rearGeometry.data.keySet()) {
-                System.out.println(key + ": " + suspensionData.rearGeometry.data.get(key).as_string());
+                System.out.println(key + "/ " + Geometry.csvToIniStrings.get(key) + ": " + suspensionData.rearGeometry.data.get(key).as_string());
             }
         }
     }
