@@ -3,9 +3,70 @@ package application;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Scanner;
 
+import static java.util.Map.entry;
+
+class Geometry {
+    static Map<String,String> csvToIniStrings = Map.ofEntries(
+            entry("CHAS_LowFor","WBCAR_BOTTOM_FRONT"),
+            entry("CHAS_LowAft","WBCAR_BOTTOM_REAR"),
+            entry("CHAS_UppFor","WBCAR_TOP_FRONT"),
+            entry("CHAS_UppAft","WBCAR_TOP_REAR"),
+            entry("UPRI_UppPnt","WBTYRE_TOP"),
+            entry("UPRI_LowPnt","WBTYRE_BOTTOM"),
+            entry("CHAS_TiePnt","WBCAR_STEER"),
+            entry("UPRI_TiePnt","WBTYRE_STEER")
+    );
+
+    Map<String, Coordinate> data = new HashMap<>();
+    Geometry() {
+        for (String key : csvToIniStrings.keySet()) {
+            data.put(key, new Coordinate());
+        }
+    }
+}
+
+class Coordinate {
+    double x, y, z;
+    Coordinate() {
+
+    }
+    Coordinate(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    void convertInchesToMeters() {
+        double inchToMeterConst = 0.0254;
+        this.x *= inchToMeterConst;
+        this.y *= inchToMeterConst;
+        this.z *= inchToMeterConst;
+    }
+
+    void recenter(Coordinate newZero) {
+        x = x - newZero.x;
+        y = y - newZero.y;
+        z = z - newZero.z;
+    }
+    void applyAxisSwap() {
+        double xc, yc, zc;
+        xc = x;
+        yc = y;
+        zc = z;
+        z = xc;
+        x = -yc;
+        y = zc;
+    }
+
+    String as_string() {
+        return String.valueOf(x) + ", " + String.valueOf(y) + ", " + String.valueOf(z);
+    }
+}
 class SuspensionData {
 
     private static SuspensionData instance = null;
@@ -36,39 +97,6 @@ class SuspensionData {
         derivedWheelBase = referenceDistance + Math.abs(frontLongitudinalOffset) + Math.abs(rearLongitudinalOffset);
     }
 
-    public class Coordinate {
-        double x, y, z;
-        Coordinate() {
-
-        }
-        Coordinate(double x, double y, double z) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
-        void convertInchesToMeters() {
-            double inchToMeterConst = 0.0254;
-            this.x *= inchToMeterConst;
-            this.y *= inchToMeterConst;
-            this.z *= inchToMeterConst;
-        }
-
-        void applyAxisSwap() {
-            double xc, yc, zc;
-            xc = x;
-            yc = y;
-            zc = z;
-            z = xc;
-            x = -yc;
-            y = zc;
-        }
-
-        String as_string() {
-            return String.valueOf(x) + ", " + String.valueOf(y) + ", " + String.valueOf(z);
-        }
-    }
-
     public void calculateFrontWheelCenter() {
         double adjustedHalfTrack = frontHalfTrack + frontTireDiameter / 2.0 * Math.sin(frontStaticCamber * Math.PI / 180.0);
         frontWheelCenter = new Coordinate(derivedWheelBase / 2.0, adjustedHalfTrack, frontTireDiameter / 2.0);
@@ -96,6 +124,9 @@ class SuspensionData {
     double rearTireDiameter;
 
     double derivedWheelBase;
+
+    Geometry frontGeometry = new Geometry();
+    Geometry rearGeometry = new Geometry();
 
     boolean checkFields() {
         if (-1.0 == referenceDistance) { return false; }
@@ -194,7 +225,6 @@ public class InputParser {
 
     static String findRowEntryByKey(String key, File file) throws IOException {
         Scanner reader = new Scanner(file);
-
         while (reader.hasNextLine()) {
             String[] next = reader.nextLine().split(",");
             for (int i = 0; i < next.length; i++) {
@@ -202,6 +232,22 @@ public class InputParser {
                 if (entry.equalsIgnoreCase(key)) {
                     reader.close();
                     return next[i+1];
+                }
+            }
+        }
+        reader.close();
+        throw new IOException("Could not find key");
+    }
+
+    static Coordinate getCoordinateByKey(String key, File file) throws IOException {
+        Scanner reader = new Scanner(file);
+        while (reader.hasNextLine()) {
+            String[] next = reader.nextLine().split(",");
+            for (int i = 0; i < next.length; i++) {
+                String entry = next[i];
+                if (entry.toLowerCase().contains(key.toLowerCase())) {
+                    reader.close();
+                    return new Coordinate(Double.parseDouble(next[i+1]), Double.parseDouble(next[i+2]), Double.parseDouble(next[i+3]));
                 }
             }
         }
@@ -231,6 +277,12 @@ public class InputParser {
                 suspensionData.frontStaticCamber = Double.parseDouble(findRowEntryByKey("Static Camber", file));
 
                 // Get suspension setup positions:
+                for (String key : Geometry.csvToIniStrings.keySet()) {
+                    Coordinate geometryPosition = getCoordinateByKey(key, file);
+                    geometryPosition.convertInchesToMeters();
+                    suspensionData.frontGeometry.data.put(key, geometryPosition);
+                }
+
 
                 // Debug:
                 System.out.println("Got front suspension data");
@@ -243,6 +295,11 @@ public class InputParser {
                 suspensionData.rearStaticCamber = Double.parseDouble(findRowEntryByKey("Static Camber", file));
 
                 // Get suspension setup positions:
+                for (String key : Geometry.csvToIniStrings.keySet()) {
+                    Coordinate geometryPosition = getCoordinateByKey(key, file);
+                    geometryPosition.convertInchesToMeters();
+                    suspensionData.rearGeometry.data.put(key, geometryPosition);
+                }
 
                 // Debug:
                 System.out.println("Got rear suspension data");
@@ -259,8 +316,33 @@ public class InputParser {
             suspensionData.calculateFrontWheelCenter();
             suspensionData.calculateRearWheelCenter();
 
+            // Recenter geometry data
+            for (String key : suspensionData.frontGeometry.data.keySet()) {
+                suspensionData.frontGeometry.data.get(key).recenter(suspensionData.frontWheelCenter);
+            }
+            for (String key : suspensionData.rearGeometry.data.keySet()) {
+                suspensionData.rearGeometry.data.get(key).recenter(suspensionData.rearWheelCenter);
+            }
+
+            // Reorient geometry data
+            for (String key : suspensionData.frontGeometry.data.keySet()) {
+                suspensionData.frontGeometry.data.get(key).applyAxisSwap();
+            }
+            for (String key : suspensionData.rearGeometry.data.keySet()) {
+                suspensionData.rearGeometry.data.get(key).applyAxisSwap();
+            }
+
+            // Debug:
             System.out.println("Derived front wheel position: " + suspensionData.frontWheelCenter.as_string());
             System.out.println("Derived rear wheel position: " + suspensionData.rearWheelCenter.as_string());
+            System.out.println("Front Geometry:");
+            for (String key : suspensionData.frontGeometry.data.keySet()) {
+                System.out.println(key + ": " + suspensionData.frontGeometry.data.get(key).as_string());
+            }
+            System.out.println("Rear Geometry:");
+            for (String key : suspensionData.rearGeometry.data.keySet()) {
+                System.out.println(key + ": " + suspensionData.rearGeometry.data.get(key).as_string());
+            }
         }
     }
 }
