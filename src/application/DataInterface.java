@@ -92,6 +92,8 @@ public class DataInterface {
 
 
     /**
+     * Loads the files under the direcroty specified, and used them to both generate the .ini file mappings and copy the model/textures over as well.
+     *
      * @param car the name of the folder containing the configuration files to load
      * @throws IOException if the data folder for the specified car cannot be found
      */
@@ -139,6 +141,10 @@ public class DataInterface {
         }
     }
 
+    /**
+     * @param file The input file
+     * @param type The type of file.
+     */
     public static void inputFile(File file, Type type) {
         if (file == null) {
             inputFiles.remove(type);
@@ -151,7 +157,7 @@ public class DataInterface {
         try {
             outputFolder.mkdir();
             //model
-            outputModel(modelCar!=null?modelCar:new File(getAssetto(), "content\\cars\\test_car"), outputFolder);
+            outputModel(modelCar != null ? modelCar : new File(configs.get("data-folder") + "\\default"), outputFolder);
             //name
             outputName(name);
             //data
@@ -166,12 +172,18 @@ public class DataInterface {
         }
     }
 
-    public static FileInterface getOutput(String f) {
-        if (output.containsKey(f)) {
-            return output.get(f);
+    /**
+     * Gets or creates a FileInterface mapped to by the provided string and returns it
+     *
+     * @param fileName
+     * @return FileInterface of the correct type (ini, lut, rto, etc)
+     */
+    public static FileInterface getOutput(String fileName) {
+        if (output.containsKey(fileName)) {
+            return output.get(fileName);
         }
         FileInterface add;
-        switch (f.split("\\.")[1]) {
+        switch (fileName.split("\\.")[1]) {
             case "ini":
                 add = new INIFile();
                 break;
@@ -185,13 +197,17 @@ public class DataInterface {
                 //unsupported file type
                 return null;
         }
-        output.put(f, add);
+        output.put(fileName, add);
         return add;
     }
 
+    /**
+     * @param folder The folder to which the data files will be output
+     * @throws IOException if folder doesn't exist and is unable to be created
+     */
     public static void generateDataFiles(File folder) throws IOException {
         inputFiles.forEach(InputParser::parse);
-        for (Map.Entry<String, FileInterface> e: output.entrySet()) {
+        for (Map.Entry<String, FileInterface> e : output.entrySet()) {
             File output = new File(folder, e.getKey());
             output.createNewFile();
             PrintStream out = new PrintStream(output);
@@ -200,11 +216,18 @@ public class DataInterface {
         }
     }
 
-        public static void outputModel(File car, File outputFolder) throws IOException {
+    /**
+     * Copies all non data files from the car folder to the output folder
+     *
+     * @param car          Folder containing files to be copied
+     * @param outputFolder Location to copy files to
+     * @throws IOException
+     */
+    public static void outputModel(File car, File outputFolder) throws IOException {
         if (!car.exists()) {
             throw new FileNotFoundException("Unable to find reference files at " + car.getAbsolutePath());
         }
-        for (File f: car.listFiles()) {
+        for (File f : car.listFiles()) {
             copy(f, new File(outputFolder, f.getName()));
         }
     }
@@ -214,7 +237,7 @@ public class DataInterface {
             if (!to.exists()) {
                 to.mkdir();
             }
-            for (File f: from.listFiles()) {
+            for (File f : from.listFiles()) {
                 copy(f, new File(to, f.getName()));
             }
         } else {
@@ -222,10 +245,20 @@ public class DataInterface {
         }
     }
 
+    /**
+     * Returns info string associated with the type passed
+     * @param t
+     * @return
+     */
     public static String formatString(Type t) {
         return t.info;
     }
 
+    /**
+     * Loads configuration files from the default location
+     *
+     * @throws IOException If config file can't be found, and can't be created.
+     */
     public static void loadConfig() throws IOException {
         File config;
         if ((config = new File("src\\data\\config.txt")).exists()) {
@@ -259,6 +292,11 @@ public class DataInterface {
         }
     }
 
+    /**
+     * Loads previous files
+     *
+     * @throws IOException if configs cannot be loaded
+     */
     public static void load() throws IOException {
         loadConfig();
         File prev;
@@ -297,6 +335,9 @@ public class DataInterface {
         }
     }
 
+    /**
+     * Saves currently selected files to disk
+     */
     public static void save() {
         File prev;
         if (configs.containsKey("prev-location")) {
@@ -339,13 +380,18 @@ public class DataInterface {
 
 
     public enum Type {
+    	// Power Train
         TORQUE("csv with Torque per RPM"),
         GEARS("Gear ratios, including number gears as well as reverse(R) and final"),
+        // Aero - Not done on this project but info message would be added in quotations, 
+        // can add other enum types that are relevant to Aero
         AERO(""),
+        // Suspension
         SUSPENSION(""),
         NONE("");
 
         private String info;
+
         Type(String info) {
             this.info = info;
         }

@@ -24,9 +24,25 @@ public class TabMenu extends JPanel {
 
 	public TabMenu() {
 		super(new GridLayout(1, 1));
-		
 
-		JTabbedPane tabbedPane = new JTabbedPane();
+		JTabbedPane tabbedPane = new JTabbedPane()
+		{
+			@Override
+			public Dimension getPreferredSize()
+			{
+				int tabsWidth = 0;
+
+				for (int i = 0; i < getTabCount(); i++) {
+					tabsWidth += getBoundsAt(i).width;
+				}
+
+				Dimension preferred = super.getPreferredSize();
+
+				preferred.width = Math.max(preferred.width, tabsWidth);
+
+				return preferred;
+			}
+		};
 
 		JComponent configPanel = makeConfigPanel();
 		JComponent ptPanel = makepowertrainPanel();
@@ -34,12 +50,11 @@ public class TabMenu extends JPanel {
 		JComponent aeroPanel = makeAeroPanel();
 	
 		// Add corresponding components to tabs
+		tabbedPane.addTab("Configuration", configPanel);
 		tabbedPane.addTab("Power Train", ptPanel);
 		tabbedPane.addTab("Suspension", suspensionPanel);
 		tabbedPane.addTab("Aerodynamics", aeroPanel);
-		tabbedPane.addTab("Configuration", configPanel);
-		
-		
+
 		//Add the tabbed pane to this panel.
 		add(tabbedPane);
 
@@ -51,10 +66,13 @@ public class TabMenu extends JPanel {
    
 	private JComponent makeConfigPanel() {
 		JPanel header = new JPanel();
-		header.setLayout(new BoxLayout(header, BoxLayout.LINE_AXIS));
+		header.setLayout(new BoxLayout(header, BoxLayout.PAGE_AXIS));
 		header.add(new JLabel("Name:"));
 		name = new JTextField();
 		header.add(name);
+		header.add(new JLabel("Build Version: "));
+		build = new JTextField();
+		header.add(build);
 		JButton load = new JButton("Load");
 		load.addActionListener((e) -> {
 			JFileChooser choose = new JFileChooser();
@@ -121,7 +139,7 @@ public class TabMenu extends JPanel {
 		frame.add(new TabMenu(), BorderLayout.CENTER);
 
 		//Display the window.
-		frame.pack();
+		//frame.pack();
 		frame.setVisible(true);
 	}
 
