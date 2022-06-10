@@ -6,69 +6,87 @@ import static org.junit.jupiter.api.Assertions.*;
 import application.FileImport;
 import application.GUI;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.function.Executable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class DataTests {
-    private static DataInterface test;
-    private File[] files = new File[] {new File("src\\data\\config.txt"), new File(""), new File("src\\data\\README.txt"), new File("src\\application\\GUI.java")};
-    private String[] types = new String[]{"config", "null", "readme", "GUI class"};
+    private File[] files = new File[] {new File("src\\data\\example\\aero.ini"), new File("src\\data\\testData\\gears.txt"), new File("src\\data\\testData\\torqueCurve.txt"), new File("src\\application\\GUI.java")};
+    private DataInterface.Type[] types = new DataInterface.Type[]{DataInterface.Type.AERO, DataInterface.Type.GEARS, DataInterface.Type.TORQUE, DataInterface.Type.SUSPENSION};
+    private String[] expected = new String[] {"power.lut", "engine.ini", "drivetrain.ini"};
     @BeforeAll
     public static void setup() {
-        test = DataInterface.getInstance();
     }
 
     @Test
     public void testConfigs() {
-        assertDoesNotThrow(() -> test.generateConfigs("abarth500"));
+        assertDoesNotThrow(() -> DataInterface.loadDefaultFiles(new File("abarth500")));
     }
 
     @Test
     public void testFileInput() {
-        Map<String, File> expected = new HashMap<>();
+        Map<DataInterface.Type, File> expected = new HashMap<>();
         for (int i = 0; i < files.length; i++) {
             File f = files[i];
-            String s = types[i];
-            test.inputFile(f, s);
+            DataInterface.Type s = types[i];
+            DataInterface.inputFile(f, s);
             expected.put(s, f);
         }
-        assertIterableEquals(test.getInputFiles().entrySet(), expected.entrySet());
+        for (Map.Entry<DataInterface.Type, File> e: expected.entrySet()) {
+            assertTrue(DataInterface.getInputFiles().containsKey(e.getKey()));
+            assertEquals(e.getValue(), DataInterface.getInputFiles().get(e.getKey()));
+        }
+    }
+
+    @Test
+    public void testPowerTrain() {
+        File inputFile;
+        DataInterface.inputFile((inputFile = new File("src\\data\\testData\\torqueCurve.txt")), DataInterface.Type.TORQUE);
+        assertTrue(inputFile.exists());
+        assertDoesNotThrow(() -> DataInterface.generateDataFiles(new File("src\\data\\output")));
+        File f;
+        assertTrue((f =new File("src\\data\\output\\power.lut")).exists());
+        final Scanner[] input = new Scanner[1];
+        assertDoesNotThrow(() -> {input[0] = new Scanner(inputFile);});
+        final Scanner[] out = new Scanner[1];
+        assertDoesNotThrow(() -> {out[0] = new Scanner(f);});
+        while (input[0].hasNextLine()) {
+            assertTrue(out[0].hasNextLine());
+            String next = input[0].nextLine();
+            if (!next.matches("(([0-9](.[0-9]+)?)+,)*([0-9](.[0-9]+)?)+")) {
+                continue;
+            }
+            String next2 = out[0].nextLine();
+            Arrays.stream(next.split(",")).forEach((s) -> assertTrue(next2.contains(s)));
+        }
     }
 
     @Test
     public void testFileOutput() {
-        Map<String, File> expected = new HashMap<>();
-        for (int i = 0; i < files.length; i++) {
-            File f = files[i];
-            String s = types[i];
-            test.inputFile(f, s);
-            expected.put(s, f);
-        }
-        File output = new File("data\\output");
-        test.generateFiles(output);
-
-        for (String type: types) {
-            System.out.println(type);
-            assertTrue(new File(output,type + ".ini").exists());
+        testFileInput();
+        File output = new File("src\\data\\output");
+        assertDoesNotThrow(() -> DataInterface.generateDataFiles(output));
+        for (String e: expected) {
+            assertTrue(new File(output,e).exists());
         }
     }
 
     @Test
     public void testReopenLast() {
         //open UI, add file, close UI, reopen UI and verify change persists
-        GUI.main(null);
-        JFrame f = (JFrame) GUI.getFrames()[0];
-        f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        findFileImport((JPanel) f.getContentPane()).handleFile("src\\data\\config.txt");
-        f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
-        GUI.main(null);
-        f = (JFrame) GUI.getFrames()[1];
-        assertEquals("src\\data\\config.txt", findFileImport((JPanel) f.getContentPane()).getLabel().getText());
+        assertDoesNotThrow(DataInterface::load);
+        File expected = new File("src\\data\\README.txt");
+        DataInterface.inputFile(expected, DataInterface.Type.NONE);
+        DataInterface.save();
+        assertDoesNotThrow(DataInterface::load);
+        assertEquals(expected, DataInterface.getInputFiles().get(DataInterface.Type.NONE));
     }
 
     public FileImport findFileImport(JPanel p) {

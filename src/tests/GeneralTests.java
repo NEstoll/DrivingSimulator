@@ -30,16 +30,16 @@ public class GeneralTests {static Map<String, String> config = new HashMap<>();
             if (next.startsWith("#") || next.startsWith("//")) {
                 continue;
             }
-            config.put(next.split("\\s+", -1)[0], next.split("\\s+", -1)[1]);
+            config.put(next.split("=", -1)[0], next.split("=", -1)[1]);
         }
     }
 
     @Test
     public void testVerification() throws IOException {
         if (!config.containsKey("assetto-corsa-location")) {
-            assertThrows(IOException.class, DataInterface::verifyAssetto);
+            assertThrows(IOException.class, DataInterface::getAssetto);
         } else {
-            assertEquals(DataInterface.verifyAssetto(), new File(config.get("assetto-corsa-location")));
+            assertEquals(DataInterface.getAssetto(), new File(config.get("assetto-corsa-location")));
         }
     }
 
