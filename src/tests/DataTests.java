@@ -3,14 +3,8 @@ package tests;
 import application.DataInterface;
 import static org.junit.jupiter.api.Assertions.*;
 
-import application.FileImport;
-import application.GUI;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.function.Executable;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,7 +13,7 @@ import java.util.Scanner;
 
 public class DataTests {
     private File[] files = new File[] {new File("src\\data\\example\\aero.ini"), new File("src\\data\\testData\\gears.txt"), new File("src\\data\\testData\\torqueCurve.txt"), new File("src\\application\\GUI.java")};
-    private DataInterface.Type[] types = new DataInterface.Type[]{DataInterface.Type.AERO, DataInterface.Type.GEARS, DataInterface.Type.TORQUE, DataInterface.Type.SUSPENSION};
+    private DataInterface.Type[] types = new DataInterface.Type[]{DataInterface.Type.AERO, DataInterface.Type.GEARS, DataInterface.Type.TORQUE, DataInterface.Type.VEHICLESETUP};
     private String[] expected = new String[] {"power.lut", "engine.ini", "drivetrain.ini"};
     @BeforeAll
     public static void setup() {

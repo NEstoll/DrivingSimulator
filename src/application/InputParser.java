@@ -4,11 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
-
-import static java.util.Map.*;
 
 class Geometry {
     public static Map<String,String> csvToIniStrings = new HashMap<>();
@@ -163,9 +160,9 @@ class SuspensionData {
 public class InputParser {
 
     public static void main(String[] args) {
-        InputParser.parse(DataInterface.Type.SUSPENSION, new File("src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Front Suspension.csv"));
-        InputParser.parse(DataInterface.Type.SUSPENSION, new File("src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Rear Suspension.csv"));
-        InputParser.parse(DataInterface.Type.SUSPENSION, new File("src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Vehicle Setup.csv"));
+        InputParser.parse(DataInterface.Type.VEHICLESETUP, new File("src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Front Suspension.csv"));
+        InputParser.parse(DataInterface.Type.VEHICLESETUP, new File("src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Rear Suspension.csv"));
+        InputParser.parse(DataInterface.Type.VEHICLESETUP, new File("src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Vehicle Setup.csv"));
     }
 
     static SuspensionData suspensionData = SuspensionData.getInstance();
@@ -173,7 +170,9 @@ public class InputParser {
     public static void parse(DataInterface.Type type, File input){
         try {
             switch (type) {
-                case SUSPENSION:
+                case VEHICLESETUP:
+                case FRONT:
+                case REAR:
                     suspension(input);
                     break;
                 case TORQUE:

@@ -3,7 +3,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 
 import javax.swing.*;
@@ -111,9 +110,9 @@ public class TabMenu extends JPanel {
 	private JComponent makeSuspensionPanel() {
 		JPanel panelS = new JPanel();
 		panelS.setLayout(new BoxLayout(panelS, BoxLayout.PAGE_AXIS));
-		panelS.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
-		panelS.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
-		panelS.add(new FileImport("SUspension data", DataInterface.Type.SUSPENSION));
+		panelS.add(new FileImport("Suspension vehicle data", DataInterface.Type.VEHICLESETUP));
+		panelS.add(new FileImport("Front suspension data", DataInterface.Type.FRONT));
+		panelS.add(new FileImport("Rear suspension data", DataInterface.Type.REAR));
 		return panelS;
 	}  
 

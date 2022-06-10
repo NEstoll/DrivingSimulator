@@ -388,8 +388,10 @@ public class DataInterface {
         // can add other enum types that are relevant to Aero
         AERO(""),
         // Suspension
-        SUSPENSION("Take the Optima Suspension excel document and convert each page (Vehicle Setup/Front/Rear) to .csv files. Upload all three .csv files in any order."),
-
+        VEHICLESETUP("Vehicle Setup page from Optima Suspension excel document as a .csv files"),
+        FRONT("Front Suspension page from Optima Suspension excel document as a .csv files"),
+        REAR("Rear Suspension page from Optima Suspension excel document as a .csv files"),
+        //null
         NONE("");
 
         private String info;
