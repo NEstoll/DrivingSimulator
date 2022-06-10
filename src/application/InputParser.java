@@ -8,22 +8,22 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 
-import static java.util.Map.entry;
+import static java.util.Map.*;
 
 class Geometry {
-    static Map<String,String> csvToIniStrings = Map.ofEntries(
-            entry("CHAS_LowFor","WBCAR_BOTTOM_FRONT"),
-            entry("CHAS_LowAft","WBCAR_BOTTOM_REAR"),
-            entry("CHAS_UppFor","WBCAR_TOP_FRONT"),
-            entry("CHAS_UppAft","WBCAR_TOP_REAR"),
-            entry("UPRI_UppPnt","WBTYRE_TOP"),
-            entry("UPRI_LowPnt","WBTYRE_BOTTOM"),
-            entry("CHAS_TiePnt","WBCAR_STEER"),
-            entry("UPRI_TiePnt","WBTYRE_STEER")
-    );
-
+    public static Map<String,String> csvToIniStrings = new HashMap<>();
     Map<String, Coordinate> data = new HashMap<>();
+
+
     Geometry() {
+        csvToIniStrings.put("CHAS_LowFor","WBCAR_BOTTOM_FRONT");
+        csvToIniStrings.put("CHAS_LowAft","WBCAR_BOTTOM_REAR");
+        csvToIniStrings.put("CHAS_UppFor","WBCAR_TOP_FRONT");
+        csvToIniStrings.put("CHAS_UppAft","WBCAR_TOP_REAR");
+        csvToIniStrings.put("UPRI_UppPnt","WBTYRE_TOP");
+        csvToIniStrings.put("UPRI_LowPnt","WBTYRE_BOTTOM");
+        csvToIniStrings.put("CHAS_TiePnt","WBCAR_STEER");
+        csvToIniStrings.put("UPRI_TiePnt","WBTYRE_STEER");
         for (String key : csvToIniStrings.keySet()) {
             data.put(key, new Coordinate());
         }
