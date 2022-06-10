@@ -28,6 +28,7 @@ public class DataTests {
     @Test
     public void testConfigs() {
         assertDoesNotThrow(() -> DataInterface.loadDefaultFiles(new File("abarth500")));
+        return;
     }
 
     @Test
@@ -87,21 +88,6 @@ public class DataTests {
         DataInterface.save();
         assertDoesNotThrow(DataInterface::load);
         assertEquals(expected, DataInterface.getInputFiles().get(DataInterface.Type.NONE));
-    }
-
-    public FileImport findFileImport(JPanel p) {
-        for (Component c: p.getComponents()) {
-            if (c instanceof FileImport) {
-                return (FileImport) c;
-            }
-            if (c instanceof JPanel) {
-                FileImport f = findFileImport((JPanel) c);
-                if (f!=null) {
-                    return f;
-                }
-            }
-        }
-        return null;
     }
 
 }

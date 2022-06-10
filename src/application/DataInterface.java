@@ -19,6 +19,7 @@ public class DataInterface {
     private static Map<String, FileInterface> output = new HashMap<>();
     private static String name;
     private static Map<Type, Action> fileListeners = new HashMap<>();
+    private static File modelCar;
 
     public static Map<Type, File> getInputFiles() {
         return inputFiles;
@@ -96,9 +97,11 @@ public class DataInterface {
      */
     public static void loadDefaultFiles(File car) throws IOException {
         if (new File(car, "data").exists() && new File(car, "data").isDirectory()) {
+            modelCar = car;
             car = new File(car, "data");
         } else if (new File(getAssetto(), "content\\cars\\" + car.getName() + "\\data").exists()) {
             car = new File(getAssetto(), "content\\cars\\" + car.getName() + "\\data");
+            modelCar = car.getParentFile();
         } else if (new File(getAssetto(), "content\\cars\\" + car.getName()).exists()) {
             throw new FileNotFoundException("data folder not found at " + getAssetto().getAbsolutePath() + "\nmake sure you have extracted data.acd");
         }
@@ -148,7 +151,7 @@ public class DataInterface {
         try {
             outputFolder.mkdir();
             //model
-            outputModel("test_car", outputFolder);
+            outputModel(modelCar!=null?modelCar:new File(getAssetto(), "content\\cars\\test_car"), outputFolder);
             //name
             outputName(name);
             //data
@@ -197,8 +200,7 @@ public class DataInterface {
         }
     }
 
-    public static void outputModel(String carName, File outputFolder) throws IOException {
-        File car = new File(getAssetto(), "content\\cars\\" + carName);
+        public static void outputModel(File car, File outputFolder) throws IOException {
         if (!car.exists()) {
             throw new FileNotFoundException("Unable to find reference files at " + car.getAbsolutePath());
         }
