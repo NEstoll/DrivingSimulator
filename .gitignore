@@ -3,3 +3,5 @@
 /src/data/testConfig.txt
 DrivingSimulator.iml
 /bin/
+.classpath
+.project
