@@ -14,7 +14,6 @@ import java.util.Map;
  * Main class for UI, will handle all subcomponents and displaying the application
  */
 public class GUI extends JFrame {
-    private static Component advancedPanel;
     public static JTextField name;
     public static GUI gui;
 
@@ -63,8 +62,7 @@ public class GUI extends JFrame {
     // Set name of car file
     public static void setNameText(String text) {
         if (name != null) {
-            name.setText(text);
-            name.validate();
+            TabMenu.name.setText(text);
         }
     }
 
