@@ -155,7 +155,7 @@ public class DataInterface {
 
     public static void outputFiles(File outputFolder) {
         try {
-            outputFolder.mkdir();
+            outputFolder.mkdirs();
             //model
             outputModel(modelCar != null ? modelCar : new File(configs.get("data-folder") + "\\default"), outputFolder);
             //name
