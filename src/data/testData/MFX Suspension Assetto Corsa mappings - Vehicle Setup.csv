@@ -1,0 +1,21 @@
+,Name:,MFX Test 1,,,,,
+,Type:,Vehicle Setup,Created by:,Connor,,Created on:,3/22/22 19:36
+,Version:,2.0.2,Modified by:,,,Modified on:,
+Comments:,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+User Options,Length,inch,in,,,,
+,Angle,degree,deg,,,,
+,Coordinate System,"[[1,0,0]
+ [0,1,0]
+ [0,0,1]]",,,,,
+,,,,,,,
+Setup,Front Suspension,Front Double 3.4,,,,,
+,Rear Suspension,Setup 2 Mono Rear OLD,,,,,
+,Reference Distance,0.500,,,Total wheel base is Long_Off Front - Long_Off Rear + Ref Dist,,
+,Brake Bias,70.000,,,,,
+,Drive Bias,0.000,,,,,
+,Front Mass Distribution,50.000,,,,,
+,Left Mass Distribution,50.000,,,,,
+,Center of Gravity Height,11.500,,,,,
