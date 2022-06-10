@@ -74,7 +74,6 @@ class Coordinate {
 class SuspensionData {
 
     private static SuspensionData instance = null;
-    public double cgFrontRearDistribution;
 
     private SuspensionData() {
         referenceDistance = -1.0;
@@ -114,7 +113,18 @@ class SuspensionData {
         rearWheelCenter.convertInchesToMeters();
     }
 
+    public static double toeDegreesToMeters(double toeDeg, double tireDiameterInches) {
+        return Math.sin(toeDeg * Math.PI/180.0) * tireDiameterInches * 0.0254;
+    }
+
+    public static double findBasey(double radiusIn, double cgHeightIn) {
+        return 0.0254 * (cgHeightIn - radiusIn);
+    }
+
     double referenceDistance;
+
+    double cgHeightIn;
+    double cgFrontRearDistribution;
 
     double frontHalfTrack;
     double rearHalfTrack;
@@ -124,6 +134,9 @@ class SuspensionData {
 
     double frontStaticCamber;
     double rearStaticCamber;
+
+    double frontStaticToeDeg;
+    double rearStaticToeDeg;
 
     double frontTireDiameter;
     double rearTireDiameter;
@@ -150,9 +163,9 @@ class SuspensionData {
 public class InputParser {
 
     public static void main(String[] args) {
-        InputParser.parse(DataInterface.Type.SUSPENSION, new File("C:\\Users\\caleb\\Documents\\CSCI370\\repo\\DrivingSimulator\\src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Front Suspension.csv"));
-        InputParser.parse(DataInterface.Type.SUSPENSION, new File("C:\\Users\\caleb\\Documents\\CSCI370\\repo\\DrivingSimulator\\src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Rear Suspension.csv"));
-        InputParser.parse(DataInterface.Type.SUSPENSION, new File("C:\\Users\\caleb\\Documents\\CSCI370\\repo\\DrivingSimulator\\src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Vehicle Setup.csv"));
+        InputParser.parse(DataInterface.Type.SUSPENSION, new File("src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Front Suspension.csv"));
+        InputParser.parse(DataInterface.Type.SUSPENSION, new File("src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Rear Suspension.csv"));
+        InputParser.parse(DataInterface.Type.SUSPENSION, new File("src\\data\\testData\\MFX Suspension Assetto Corsa mappings - Vehicle Setup.csv"));
     }
 
     static SuspensionData suspensionData = SuspensionData.getInstance();
@@ -268,6 +281,8 @@ public class InputParser {
 
             suspensionData.cgFrontRearDistribution = Double.parseDouble(findRowEntryByKey("Front Mass Distribution", file)) / 100.0;
 
+            suspensionData.cgHeightIn = Double.parseDouble(findRowEntryByKey("Center of Gravity Height", file));
+
             // Debug:
             System.out.println("Got setup suspension data");
         } else if (value.equals("Suspension")) {
@@ -283,6 +298,7 @@ public class InputParser {
                 suspensionData.frontTireDiameter = Double.parseDouble(findRowEntryByKey("Tire Diameter", file));
                 suspensionData.frontLongitudinalOffset = Double.parseDouble(findRowEntryByKey("Longitudinal Offset", file));
                 suspensionData.frontStaticCamber = Double.parseDouble(findRowEntryByKey("Static Camber", file));
+                suspensionData.frontStaticToeDeg = Double.parseDouble(findRowEntryByKey("Static Toe", file));
 
                 // Get suspension setup positions:
                 for (String key : Geometry.csvToIniStrings.keySet()) {
@@ -301,6 +317,7 @@ public class InputParser {
                 suspensionData.rearTireDiameter = Double.parseDouble(findRowEntryByKey("Tire Diameter", file));
                 suspensionData.rearLongitudinalOffset = Double.parseDouble(findRowEntryByKey("Longitudinal Offset", file));
                 suspensionData.rearStaticCamber = Double.parseDouble(findRowEntryByKey("Static Camber", file));
+                suspensionData.rearStaticToeDeg = Double.parseDouble(findRowEntryByKey("Static Toe", file));
 
                 // Get suspension setup positions:
                 for (String key : Geometry.csvToIniStrings.keySet()) {
@@ -367,20 +384,32 @@ public class InputParser {
             ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[FRONT]", "TYPE", "DWB");
             // TRACK
             ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[FRONT]", "TRACK", String.valueOf(suspensionData.frontWheelCenter.y * 2));
+            // BASEY
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[FRONT]", "BASEY", String.valueOf(SuspensionData.findBasey(suspensionData.frontTireDiameter / 2.0, suspensionData.cgHeightIn)));
             // STATIC_CAMBER
             ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[FRONT]", "STATIC_CAMBER", String.valueOf(suspensionData.frontStaticCamber));
+            // TOE_OUT
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[FRONT]", "TOE_OUT", String.valueOf(SuspensionData.toeDegreesToMeters(suspensionData.frontStaticToeDeg, suspensionData.frontTireDiameter)));
 
             // [REAR]
             // TYPE
             ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[REAR]", "TYPE", "DWB");
             // TRACK
             ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[REAR]", "TRACK", String.valueOf(suspensionData.rearWheelCenter.y * 2));
+            // BASEY
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[REAR]", "BASEY", String.valueOf(SuspensionData.findBasey(suspensionData.rearTireDiameter / 2.0, suspensionData.cgHeightIn)));
             // STATIC_CAMBER
             ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[REAR]", "STATIC_CAMBER", String.valueOf(suspensionData.rearStaticCamber));
+            // TOE_OUT
+            ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[REAR]", "TOE_OUT", String.valueOf(SuspensionData.toeDegreesToMeters(suspensionData.rearStaticToeDeg, suspensionData.rearTireDiameter)));
 
             // Debug:
             System.out.println("Derived front wheel position: " + suspensionData.frontWheelCenter.as_string());
             System.out.println("Derived rear wheel position: " + suspensionData.rearWheelCenter.as_string());
+            System.out.println("Front basey (meters): " + SuspensionData.findBasey(suspensionData.frontTireDiameter / 2.0, suspensionData.cgHeightIn));
+            System.out.println("Rear basey (meters): " + SuspensionData.findBasey(suspensionData.rearTireDiameter / 2.0, suspensionData.cgHeightIn));
+            System.out.println("Front toe (meters): " + SuspensionData.toeDegreesToMeters(suspensionData.frontStaticToeDeg, suspensionData.frontTireDiameter));
+            System.out.println("Rear toe (meters): " + SuspensionData.toeDegreesToMeters(suspensionData.rearStaticToeDeg, suspensionData.rearTireDiameter));
             System.out.println("Front Geometry:");
             for (String key : suspensionData.frontGeometry.data.keySet()) {
                 System.out.println(key + "/ " + Geometry.csvToIniStrings.get(key) + ": " + suspensionData.frontGeometry.data.get(key).as_string());
