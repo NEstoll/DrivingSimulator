@@ -2,9 +2,15 @@ package application;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
 
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,7 +36,7 @@ public class TabMenu extends JPanel {
 		// Add corresponding components to tabs
 		tabbedPane.addTab("Power Train", ptPanel);
 		tabbedPane.addTab("Suspension", suspensionPanel);
-		tabbedPane.addTab("Aero", aeroPanel);
+		tabbedPane.addTab("Aerodynamics", aeroPanel);
 		tabbedPane.addTab("Configuration", configPanel);
 		
 		
@@ -41,55 +47,60 @@ public class TabMenu extends JPanel {
 		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 	}
 	
-  
 
-// private static void basicPanelSetup() {
-        //add basic content
-        //JPanel basicContent = new JPanel();
-        //upload buttons (added in a row top to bottom in the center of the window)
-		/*
-		 * basicContent.setLayout(new BoxLayout(basicContent, BoxLayout.PAGE_AXIS));
-		 * basicContent.add(new FileImport("Aero data", DataInterface.Type.AERO));
-		 * basicContent.add(new FileImport("Powertrain data",
-		 * DataInterface.Type.TORQUE)); basicContent.add(new FileImport("Gear data",
-		 * DataInterface.Type.GEARS)); basicContent.add(new
-		 * FileImport("Suspension data", DataInterface.Type.SUSPENSION)); basicPanel =
-		 * basicContent;
-		 */
    
 	private JComponent makeConfigPanel() {
-		JPanel panelC = new JPanel();
-		panelC.setLayout(new BoxLayout(panelC, BoxLayout.PAGE_AXIS));
-		// Name of car
+		JPanel header = new JPanel();
+		header.setLayout(new BoxLayout(header, BoxLayout.LINE_AXIS));
+		header.add(new JLabel("Name:"));
 		name = new JTextField();
-		panelC.add(new JLabel("Name: "));
-		panelC.add(name);
-		// Version of car
-		build = new JTextField();
-		panelC.add(new JLabel("Build Version: "));
-		panelC.add(build);
-		return panelC;
-
+		header.add(name);
+		JButton load = new JButton("Load");
+		load.addActionListener((e) -> {
+			JFileChooser choose = new JFileChooser();
+			choose.setDialogTitle("Please select folder containing car");
+			choose.setCurrentDirectory(DataInterface.getAssetto());
+			choose.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			choose.setAcceptAllFileFilterUsed(false);
+			choose.setVisible(true);
+			choose.showOpenDialog(null);
+			try {
+				DataInterface.loadDefaultFiles(choose.getSelectedFile());
+			} catch (IOException io) {
+				io.printStackTrace();
+			}
+		});
+		
+		//add "Submit" button
+		JButton build =  new JButton("Build");
+		build.addActionListener(new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!name.getText().equals("")) {
+					DataInterface.setName(name.getText());
+					DataInterface.outputFiles(new File(DataInterface.getAssetto(), "content\\cars\\" + name.getText()));
+				}
+			}
+		});
+		header.add(load);
+		header.add(build);
+		return header;
 	}
 
 	private JComponent makepowertrainPanel() {
 		JPanel panelP = new JPanel();
 		panelP.setLayout(new BoxLayout(panelP, BoxLayout.PAGE_AXIS));
-		// Gearing
-		// Big Label
-		panelP.add(new JLabel("Gearing"));
-
-		// Torque Curve
-		panelP.add(new JLabel("Torque Curve"));
+		panelP.add(new FileImport("Powertrain data", DataInterface.Type.TORQUE));
+        panelP.add(new FileImport("Gear data", DataInterface.Type.GEARS));
 		return panelP;
-
 	}
 	
 	private JComponent makeSuspensionPanel() {
 		JPanel panelS = new JPanel();
 		panelS.setLayout(new BoxLayout(panelS, BoxLayout.PAGE_AXIS));
-		panelS.add(new JLabel("I don't know what data needs to be here"));
-		
+		panelS.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
+		panelS.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
+		panelS.add(new FileImport("Suspension data", DataInterface.Type.SUSPENSION));
 		return panelS;
 	}  
 
@@ -103,7 +114,6 @@ public class TabMenu extends JPanel {
 		//Create and set up the window.
 		JFrame frame = new JFrame("Mines Formula SAE");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		frame.setPreferredSize(new Dimension(600,600));
 
 		//Add content to the window.
 		frame.add(new TabMenu(), BorderLayout.CENTER);
