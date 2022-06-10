@@ -157,7 +157,7 @@ public class DataInterface {
         try {
             outputFolder.mkdir();
             //model
-            outputModel(modelCar != null ? modelCar : new File(getAssetto(), "content\\cars\\test_car"), outputFolder);
+            outputModel(modelCar != null ? modelCar : new File(configs.get("data-folder") + "\\default"), outputFolder);
             //name
             outputName(name);
             //data
