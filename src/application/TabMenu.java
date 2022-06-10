@@ -24,9 +24,25 @@ public class TabMenu extends JPanel {
 
 	public TabMenu() {
 		super(new GridLayout(1, 1));
-		
 
-		JTabbedPane tabbedPane = new JTabbedPane();
+		JTabbedPane tabbedPane = new JTabbedPane()
+		{
+			@Override
+			public Dimension getPreferredSize()
+			{
+				int tabsWidth = 0;
+
+				for (int i = 0; i < getTabCount(); i++) {
+					tabsWidth += getBoundsAt(i).width;
+				}
+
+				Dimension preferred = super.getPreferredSize();
+
+				preferred.width = Math.max(preferred.width, tabsWidth);
+
+				return preferred;
+			}
+		};
 
 		JComponent configPanel = makeConfigPanel();
 		JComponent ptPanel = makepowertrainPanel();
@@ -34,12 +50,11 @@ public class TabMenu extends JPanel {
 		JComponent aeroPanel = makeAeroPanel();
 	
 		// Add corresponding components to tabs
+		tabbedPane.addTab("Configuration", configPanel);
 		tabbedPane.addTab("Power Train", ptPanel);
 		tabbedPane.addTab("Suspension", suspensionPanel);
 		tabbedPane.addTab("Aerodynamics", aeroPanel);
-		tabbedPane.addTab("Configuration", configPanel);
-		
-		
+
 		//Add the tabbed pane to this panel.
 		add(tabbedPane);
 
