@@ -326,6 +326,7 @@ public class DataInterface {
             return;
         }
         inputFiles.clear();
+        fileListeners.values().forEach(action -> action.actionPerformed(null));
         while (in.hasNextLine()) {
             String next = in.nextLine();
             try {

@@ -32,12 +32,12 @@ public class FileImport extends JPanel {
         labelConstraints.gridheight = 3;
         labelConstraints.weightx = 1.0;
         labelConstraints.fill = GridBagConstraints.HORIZONTAL;
-        label = new JLabel("No file selected");
+        label = new JLabel(DataInterface.getInputFiles().containsKey(type)?DataInterface.getInputFiles().get(type).getName():"No file selected");
         this.add(label, labelConstraints);
         DataInterface.addfileListener(type, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                label.setText(DataInterface.getInputFiles().get(type).getName());
+                label.setText(DataInterface.getInputFiles().containsKey(type)?DataInterface.getInputFiles().get(type).getName():"No file selected");
             }
         });
 

@@ -43,7 +43,9 @@ public class GUI extends JFrame {
         }
 
         try {
-            DataInterface.loadConfig();
+            DataInterface.load();
+//            DataInterface.loadConfig();
+//            DataInterface.loadDefaultFiles(new File( DataInterface.getConfigs().get("data-folder") + "\\default"));
         } catch (IOException e) {
             e.printStackTrace();
         }
