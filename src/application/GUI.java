@@ -43,7 +43,7 @@ public class GUI extends JFrame {
         }
 
         try {
-            DataInterface.load();
+            DataInterface.loadConfig();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -61,8 +61,14 @@ public class GUI extends JFrame {
 
     // Set name of car file
     public static void setNameText(String text) {
-        if (name != null) {
+        if (text != null && TabMenu.name != null) {
             TabMenu.name.setText(text);
+        }
+    }
+
+    public static void setVersionText(String text) {
+        if (text != null && TabMenu.build != null) {
+            TabMenu.build.setText(text);
         }
     }
 

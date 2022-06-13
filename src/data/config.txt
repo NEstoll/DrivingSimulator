@@ -1,3 +1,2 @@
-#this file is currently useless
 mode=basic
 prev-location=src\data\prev.txt

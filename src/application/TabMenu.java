@@ -88,7 +88,8 @@ public class TabMenu extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				if (!name.getText().equals("")) {
 					DataInterface.setName(name.getText());
-					DataInterface.outputFiles(new File(DataInterface.getAssetto(), "content\\cars\\" + name.getText()));
+					DataInterface.setVersion(TabMenu.build.getText());
+					DataInterface.outputFiles(new File(DataInterface.getAssetto(), "content\\cars\\" + name.getText() + (!TabMenu.build.getText().equals("")? " -" + TabMenu.build.getText():"")));
 					GUI.gui.close();
 				}
 			}

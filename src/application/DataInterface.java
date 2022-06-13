@@ -18,6 +18,7 @@ public class DataInterface {
     private static Map<String, String> configs = new HashMap<>();
     private static Map<String, FileInterface> output = new HashMap<>();
     private static String name;
+    private static String version;
     private static Map<Type, Action> fileListeners = new HashMap<>();
     private static File modelCar;
 
@@ -106,13 +107,16 @@ public class DataInterface {
             modelCar = car.getParentFile();
         } else if (new File(getAssetto(), "content\\cars\\" + car.getName()).exists()) {
             throw new FileNotFoundException("data folder not found at " + getAssetto().getAbsolutePath() + "\nmake sure you have extracted data.acd");
+        } else {
+            throw new FileNotFoundException("car not found at " + car.getAbsolutePath());
         }
         if (new File(car.getParent(), "ui\\ui_car.json").exists()) {
             Scanner input = new Scanner(new File(car.getParent(), "ui\\ui_car.json"));
-            while (input.hasNext()) {
+            while (input.hasNextLine()) {
                 String next = input.nextLine();
                 if (next.trim().startsWith("\"name\"")) {
-                    setName(next.split("\"")[3]);
+                    setName(next.split("\"")[3].split(" -")[0]);
+                    setVersion((next.split("\"")[3].split(" -").length==2?next.split("\"")[3].split(" -")[1]:null));
                     break;
                 }
             }
@@ -159,7 +163,7 @@ public class DataInterface {
             //model
             outputModel(modelCar != null ? modelCar : new File(configs.get("data-folder") + "\\default"), outputFolder);
             //name
-            outputName(name);
+            outputName(new File(outputFolder, "ui\\ui_car.json"));
             //data
             File dataFolder = new File(outputFolder, "data");
             generateDataFiles(dataFolder);
@@ -321,6 +325,7 @@ public class DataInterface {
         } catch (FileNotFoundException e) {
             return;
         }
+        inputFiles.clear();
         while (in.hasNextLine()) {
             String next = in.nextLine();
             try {
@@ -371,8 +376,28 @@ public class DataInterface {
         GUI.setNameText(DataInterface.getName());
     }
 
-    public static void outputName(String text) {
+    public static void setVersion(String text) {
+        if (text != null) {
+            version = text;
+            GUI.setVersionText(DataInterface.version);
+        }
+    }
+
+    public static void outputName(File output) throws FileNotFoundException {
         //in ui/ui_car
+        Scanner in = new Scanner(output);
+        StringBuilder contents = new StringBuilder();
+        while (in.hasNextLine()) {
+            String next = in.nextLine();
+            if (next.trim().startsWith("\"name\"")) {
+                next = "\"name\": \"" + name + (version!=null?" -" + version:"") + "\",";
+            }
+            contents.append(next).append("\n");
+        }
+        in.close();
+        PrintWriter out = new PrintWriter(output);
+        out.print(contents);
+        out.close();
     }
 
     public static String getName() {
