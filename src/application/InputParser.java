@@ -239,6 +239,7 @@ public class InputParser {
             throw new NumberFormatException();
         }
         ((INIFile)DataInterface.getOutput("drivetrain.ini")).setValue("[GEARS]", "COUNT", String.valueOf(gearCount));
+
     }
 
     static String findRowEntryByKey(String key, File file) throws IOException {

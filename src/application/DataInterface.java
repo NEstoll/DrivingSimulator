@@ -115,8 +115,8 @@ public class DataInterface {
             while (input.hasNextLine()) {
                 String next = input.nextLine();
                 if (next.trim().startsWith("\"name\"")) {
-                    setName(next.split("\"")[3].split(" -")[0]);
-                    setVersion((next.split("\"")[3].split(" -").length==2?next.split("\"")[3].split(" -")[1]:null));
+                    setName(next.split("\"")[3].split("-")[0]);
+                    setVersion((next.split("\"")[3].split("-").length==2?next.split("\"")[3].split("-")[1]:null));
                     break;
                 }
             }
@@ -242,7 +242,31 @@ public class DataInterface {
                 to.mkdir();
             }
             for (File f : from.listFiles()) {
-                copy(f, new File(to, f.getName()));
+                if (f.isFile() && f.toString().contains(".bank")) {
+                    //System.out.println("Fixed sounds " + TabMenu.directoryName + ".bank");
+                    copy(f, new File(to, TabMenu.directoryName + ".bank"));
+                } else if (f.isFile() && f.toString().contains("GUIDs.txt")) {
+                    //System.out.println("Fixed sound GUIDS.txt");
+                    // Read in GUIDS.txt
+                    File guidFile = new File(to, f.getName());
+                    copy(f, guidFile);
+                    BufferedReader reader = new BufferedReader(new FileReader(guidFile));
+                    String content = "";
+                    String line = reader.readLine();
+                    while (line != null) {
+                        content += line + System.lineSeparator();
+                        line = reader.readLine();
+                    }
+                    // Replace instances of RACECAR with the directory name
+                    content = content.replaceAll("RACECAR", TabMenu.directoryName);
+                    // Write the new content to the file
+                    FileWriter writer = new FileWriter(guidFile);
+                    writer.write(content);
+                    reader.close();
+                    writer.close();
+                } else {
+                    copy(f, new File(to, f.getName()));
+                }
             }
         } else {
             Files.copy(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -391,7 +415,7 @@ public class DataInterface {
         while (in.hasNextLine()) {
             String next = in.nextLine();
             if (next.trim().startsWith("\"name\"")) {
-                next = "\"name\": \"" + name + (version!=null?" -" + version:"") + "\",";
+                next = "\"name\": \"" + name + (!version.isEmpty() ?"-" + version : "") + "\",";
             }
             contents.append(next).append("\n");
         }

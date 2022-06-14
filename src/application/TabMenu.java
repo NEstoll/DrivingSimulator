@@ -12,6 +12,8 @@ public class TabMenu extends JPanel {
 	public static JTextField name;
 	public static JTextField build;
 
+	public static String directoryName;
+
 	public TabMenu() {
 		super(new GridLayout(1, 1));
 
@@ -87,9 +89,10 @@ public class TabMenu extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (!name.getText().equals("")) {
+					directoryName = name.getText().toLowerCase() + (!TabMenu.build.getText().equals("")? "-" + TabMenu.build.getText().toLowerCase() : "");
 					DataInterface.setName(name.getText());
 					DataInterface.setVersion(TabMenu.build.getText());
-					DataInterface.outputFiles(new File(DataInterface.getAssetto(), "content\\cars\\" + name.getText() + (!TabMenu.build.getText().equals("")? " -" + TabMenu.build.getText():"")));
+					DataInterface.outputFiles(new File(DataInterface.getAssetto(), "content\\cars\\" + directoryName));
 					GUI.gui.close();
 				}
 			}

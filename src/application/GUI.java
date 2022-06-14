@@ -21,7 +21,7 @@ public class GUI extends JFrame {
         //create frame
         GUI frame = new GUI();
         GUI.gui = frame;
-        frame.setTitle("Mines Formula SAE");
+        frame.setTitle("MF Car Builder");
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -83,7 +83,7 @@ public class GUI extends JFrame {
     // Find Assetto on the computer by asking user if not found
     private static boolean chooseAssetto() { //prompt user for assetto location
         JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle("Please select assettocorsa folder");
+        chooser.setDialogTitle("Please select Assetto Corsa folder");
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setAcceptAllFileFilterUsed(false);
         chooser.setVisible(true);
