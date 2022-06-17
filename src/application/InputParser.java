@@ -3,6 +3,7 @@ package application;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -65,7 +66,8 @@ class Coordinate {
     }
 
     String as_string() {
-        return String.valueOf(x) + "," + String.valueOf(y) + "," + String.valueOf(z);
+        DecimalFormat roundDecimal = new DecimalFormat("#.#####");
+        return String.valueOf(roundDecimal.format(x)) + "," + String.valueOf(roundDecimal.format(y)) + "," + String.valueOf(roundDecimal.format(z));
     }
 }
 class SuspensionData {
@@ -115,7 +117,7 @@ class SuspensionData {
     }
 
     public static double findBasey(double radiusIn, double cgHeightIn) {
-        return 0.0254 * (cgHeightIn - radiusIn);
+        return -0.0254 * (cgHeightIn - radiusIn);
     }
 
     double referenceDistance;
@@ -341,22 +343,27 @@ public class InputParser {
             suspensionData.calculateFrontWheelCenter();
             suspensionData.calculateRearWheelCenter();
 
-            // Recenter geometry data
+            // Recenter & reorient geometry data
             for (String key : suspensionData.frontGeometry.data.keySet()) {
                 suspensionData.frontGeometry.data.get(key).recenter(suspensionData.frontWheelCenter);
+                suspensionData.frontGeometry.data.get(key).applyAxisSwap();
             }
             for (String key : suspensionData.rearGeometry.data.keySet()) {
                 suspensionData.rearGeometry.data.get(key).recenter(suspensionData.rearWheelCenter);
+                suspensionData.rearGeometry.data.get(key).applyAxisSwap();
             }
 
-            // Reorient geometry data
+            // Fix bug with AC suspension geometry (hacky solution for now)
+            // To actually fix, need to find a way to calculate a functional LINEAR_STEER_ROD_RATIO and STEER_LOCK in car.ini
+            suspensionData.frontGeometry.data.get("CHAS_TiePnt").y = suspensionData.frontGeometry.data.get("UPRI_TiePnt").y;
+            suspensionData.frontGeometry.data.get("CHAS_TiePnt").z = suspensionData.frontGeometry.data.get("UPRI_TiePnt").z;
+            suspensionData.frontGeometry.data.get("UPRI_TiePnt").x = suspensionData.rearGeometry.data.get("UPRI_TiePnt").x;
+
             for (String key : suspensionData.frontGeometry.data.keySet()) {
-                suspensionData.frontGeometry.data.get(key).applyAxisSwap();
                 // Output to ini
                 ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[FRONT]", Geometry.csvToIniStrings.get(key).toUpperCase(), suspensionData.frontGeometry.data.get(key).as_string());
             }
             for (String key : suspensionData.rearGeometry.data.keySet()) {
-                suspensionData.rearGeometry.data.get(key).applyAxisSwap();
                 // Output to ini
                 ((INIFile)DataInterface.getOutput("suspensions.ini")).setValue("[REAR]", Geometry.csvToIniStrings.get(key).toUpperCase(), suspensionData.rearGeometry.data.get(key).as_string());
             }

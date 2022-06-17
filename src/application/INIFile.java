@@ -4,6 +4,7 @@ package application;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class INIFile extends FileInterface {
@@ -15,10 +16,24 @@ public class INIFile extends FileInterface {
     }
 
     public void setValue(String header, String key, String value) {
-        if (!sections.containsKey(header)) {
-            sections.put(header, new HashMap<>());
+
+        try {
+            Double d = Double.parseDouble(value);
+
+            DecimalFormat roundDecimal = new DecimalFormat("#.#####");
+
+            value = String.valueOf(roundDecimal.format(d));
+            if (!sections.containsKey(header)) {
+                sections.put(header, new HashMap<>());
+            }
+            sections.get(header).put(key, value);
+
+        } catch (NumberFormatException e) {
+            if (!sections.containsKey(header)) {
+                sections.put(header, new HashMap<>());
+            }
+            sections.get(header).put(key, value);
         }
-        sections.get(header).put(key, value);
     }
 
     public Map<String, Map<String, String>> getValues() {
