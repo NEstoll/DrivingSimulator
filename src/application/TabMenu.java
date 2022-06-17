@@ -89,7 +89,7 @@ public class TabMenu extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (!name.getText().equals("")) {
-					directoryName = name.getText().toLowerCase() + (!TabMenu.build.getText().equals("")? "-" + TabMenu.build.getText().toLowerCase() : "");
+					directoryName = name.getText().replaceAll("\\s+","").toLowerCase() + (!TabMenu.build.getText().equals("")? "-" + TabMenu.build.getText().toLowerCase() : "");
 					DataInterface.setName(name.getText());
 					DataInterface.setVersion(TabMenu.build.getText());
 					DataInterface.outputFiles(new File(DataInterface.getAssetto(), "content\\cars\\" + directoryName));
